@@ -1,0 +1,933 @@
+{
+  "name": "01 Lead Intake - Outbound Call",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Lead intake -> AI call within seconds\nPOST single lead, an array, or `{leads:[...]}` to the webhook URL (see docs/SETUP.md). Checks consent, DNC list and calling hours, then asks Vapi to call. CRM updates run AFTER the call is placed.",
+        "height": 150,
+        "width": 700,
+        "color": 7
+      },
+      "id": "fd2757ce-b5d8-5f1f-a3a1-3b0056a56302",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake-REPLACE_WITH_INTAKE_TOKEN",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aedde45e-a4a6-5dd5-9ab7-6fb7dde3ebf6",
+      "name": "Webhook: Lead Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "7ac75d9c-b7ea-5802-8095-9d485212262a"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ ({ ok: true, status: 'accepted' }) }}",
+        "options": {}
+      },
+      "id": "894bdd3a-dd38-5533-a74f-98b634329a4b",
+      "name": "Respond Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "500f4a7c-665e-5c3c-93f0-64d3ae3a446e",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nconst cfg = $('Config').first().json.cfg;\nconst body = $('Webhook: Lead Intake').first().json.body;\nconst rows = Array.isArray(body) ? body : (body && Array.isArray(body.leads) ? body.leads : [body || {}]);\nconst sd = $getWorkflowStaticData('global');\nsd.seen = sd.seen || {};\nconst now = Date.now();\nfor (const k of Object.keys(sd.seen)) if (now - sd.seen[k] > 3600000) delete sd.seen[k];\nconst pick = (o, keys) => { for (const k of keys) { const v = o ? o[k] : undefined; if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim(); } return ''; };\nconst truthy = (v) => ['true', 'yes', 'y', '1', 'on', 'checked', 'agreed'].includes(String(v).toLowerCase().trim());\nconst slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);\nconst out = [];\nfor (const r0 of rows) {\n  const r = r0 || {};\n  const c = (r.contact && typeof r.contact === 'object') ? r.contact : r;\n  let first = pick(c, ['firstName', 'first_name', 'firstname', 'First Name', 'fname']);\n  let last = pick(c, ['lastName', 'last_name', 'lastname', 'Last Name', 'lname']);\n  const full = pick(c, ['full_name', 'fullName', 'name', 'Name']);\n  if (!first && full) { const parts = full.split(/\\s+/); first = parts.shift() || ''; if (!last) last = parts.join(' '); }\n  const phone = normalizePhone(pick(c, ['phone', 'phone_number', 'phoneNumber', 'Phone', 'mobile', 'telephone', 'tel']), cfg.agency.default_country_code);\n  const email = pick(c, ['email', 'Email', 'email_address']);\n  const source = pick(r, ['source', 'lead_source', 'leadSource', 'utm_source', 'campaign']) || pick(c, ['source', 'lead_source']) || 'web form';\n  const interest = pick(r, ['interest', 'propertyInterest', 'property_interest', 'property', 'listing', 'listing_address', 'address', 'message', 'notes'])\n    .replace(/\\s+/g, ' ').replace(/[{}]/g, '').slice(0, 80);\n  const consentRaw = pick(r, ['consent', 'consent_given', 'consentToCall', 'call_consent', 'sms_consent', 'tcpa_consent', 'agree', 'agreed_to_contact'])\n    || pick(c, ['consent', 'consent_given', 'call_consent', 'sms_consent', 'tcpa_consent']);\n  const consent = truthy(consentRaw);\n  const contactId = pick(c, ['contact_id', 'contactId']) || pick(r, ['contact_id', 'contactId']);\n  let skip = '';\n  const tagStr = JSON.stringify(c.tags || r.tags || '').toLowerCase();\n  if (!E164.test(phone)) skip = 'invalid_phone';\n  else if (/\\bdnc\\b|do[- ]not[- ]contact|do[- ]not[- ]call/.test(tagStr)) skip = 'dnc_tag';\n  else if (cfg.calling.require_consent_flag && !consent) skip = 'no_consent';\n  else if (sd.seen[phone] && now - sd.seen[phone] < cfg.calling.dedupe_minutes * 60000) skip = 'duplicate';\n  if (!skip) sd.seen[phone] = now;\n  out.push({ json: { cfg: cfg, skip: skip, lead: { firstName: first, lastName: last, email: email, phone: phone, source: source, sourceSlug: slug(source), interest: interest, contactId: contactId, consent: consent } }, pairedItem: { item: 0 } });\n}\nreturn out;\n"
+      },
+      "id": "e2390c37-d9e1-57dd-9840-2d3a6ba0f30e",
+      "name": "Normalize Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Config').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Config').item.json.cfg.google.tabs.dnc + '!A1:D5000') }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "id": "7e580e73-3f0b-57a4-90d4-0041a16ef779",
+      "name": "Sheets Read DNC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nfunction tzOffsetMs(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);\n  return asUtc - Math.floor(utcMs / 1000) * 1000;\n}\nfunction isoDow(y, m, d) { const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return w === 0 ? 7 : w; }\nfunction localParts(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const y = +p.year, m = +p.month, d = +p.day;\n  return { y: y, m: m, d: d, h: +p.hour, min: +p.minute, dow: isoDow(y, m, d) };\n}\nfunction zonedToUtc(y, m, d, h, min, tz) {\n  const guess = Date.UTC(y, m - 1, d, h, min);\n  const off = tzOffsetMs(guess, tz);\n  let utc = guess - off;\n  const off2 = tzOffsetMs(utc, tz);\n  if (off2 !== off) utc = guess - off2;\n  return utc;\n}\nfunction addDays(y, m, d, n) { const t = new Date(Date.UTC(y, m - 1, d + n)); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }\nfunction hm(s) { const a = String(s).split(':').map(Number); return { h: a[0], m: a[1] || 0 }; }\nfunction fmtLabel(utcMs, tz) {\n  const dt = new Date(utcMs);\n  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(dt);\n  const md = new Intl.DateTimeFormat('en-US', { timeZone: tz, month: 'long', day: 'numeric' }).format(dt);\n  const t = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(dt);\n  return wd + ', ' + md + ' at ' + t;\n}\nfunction inWindow(utcMs, win, tz) {\n  const p = localParts(utcMs, tz);\n  if (!win.days.includes(p.dow)) return false;\n  const s = hm(win.start), e = hm(win.end);\n  const mins = p.h * 60 + p.min;\n  return mins >= s.h * 60 + s.m && mins < e.h * 60 + e.m;\n}\nfunction nextWindowStart(utcMs, win, tz) {\n  if (inWindow(utcMs, win, tz)) return utcMs;\n  const p = localParts(utcMs, tz);\n  const s = hm(win.start);\n  for (let i = 0; i < 9; i++) {\n    const dd = addDays(p.y, p.m, p.d, i);\n    if (!win.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n    const startUtc = zonedToUtc(dd.y, dd.m, dd.d, s.h, s.m, tz);\n    if (startUtc >= utcMs) return startUtc;\n  }\n  return utcMs + 24 * 3600 * 1000;\n}\n\n\nconst cfg = $('Config').first().json.cfg;\nconst tz = cfg.agency.timezone;\nconst leads = $('Normalize Leads').all();\nconst dncResp = $input.first().json;\nconst dncFailed = !!(dncResp && dncResp.error);\nconst dnc = new Set(sheetRows(dncResp).map((r) => normalizePhone(r.phone, cfg.agency.default_country_code)));\nconst now = Date.now();\nconst inWin = inWindow(now, cfg.calling.window, tz);\nreturn leads.map((it) => {\n  const j = it.json;\n  let action = 'call', reason = '', dueMs = 0, warning = '';\n  if (j.skip) { action = 'skip'; reason = j.skip; }\n  else if (dncFailed) { action = 'defer'; reason = 'dnc_check_failed'; dueMs = now + 10 * 60000; warning = 'DNC sheet could not be read - lead deferred instead of called: ' + errMsg(dncResp); }\n  else if (dnc.has(j.lead.phone)) { action = 'skip'; reason = 'dnc'; }\n  else if (!inWin) { action = 'defer'; reason = 'outside_hours'; dueMs = nextWindowStart(now, cfg.calling.window, tz); }\n  return { json: Object.assign({}, j, { action: action, reason: reason, dueMs: dueMs, gateWarning: warning }), pairedItem: { item: 0 } };\n});\n"
+      },
+      "id": "4968b9e6-bc74-538a-8fb7-d2b3e91a69ef",
+      "name": "Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8eb078e9-5889-585b-957c-fd093775f881",
+              "leftValue": "={{ !!($json.action === 'skip') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "80c865cd-9c3b-5931-b3f7-0006dd0163cb",
+      "name": "Skip?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst L = ctx.lead;\nctx.logRow = { values: [[iso(Date.now()), '', 'outbound', L.phone, L.contactId || '', 0, 'skipped:' + ctx.reason, 'skipped', '', '', clip((L.firstName || '') + ' ' + (L.source || ''), 120), '']] };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "7b80e7f8-d274-5716-8e0c-b2bd29f072f1",
+      "name": "Prep Skip Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1750,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Prep Skip Log').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Prep Skip Log').item.json.cfg.google.tabs.call_log + '!A:L') + ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Skip Log').item.json.logRow) }}"
+      },
+      "id": "9cfd0600-9b9f-51cf-a29f-cbe9a9713b36",
+      "name": "Sheets Append Skip Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        260
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "77017df5-2714-5965-94ec-217cb4114c73",
+              "leftValue": "={{ !!($json.action === 'call') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bba83b24-12f6-5c64-81ba-3535b86ab8db",
+      "name": "Call Now?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2250,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst L = ctx.lead;\nctx.vapiBody = {\n  assistantId: cfg.vapi.outbound_assistant_id,\n  phoneNumberId: cfg.vapi.phone_number_id,\n  name: clip('Lead ' + (L.firstName || L.phone), 60),\n  customer: { number: L.phone, name: L.firstName || undefined },\n  assistantOverrides: { variableValues: {\n    firstName: L.firstName || 'there', leadSource: L.source, propertyInterest: L.interest || 'a property',\n    contactId: L.contactId || '', attempt: '1' } }\n};\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "1b63b04e-2f64-5a4c-bce8-79acb95721f3",
+      "name": "Prep Vapi Call",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.vapi.ai/call' }}",
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 8000
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Vapi Call').item.json.vapiBody) }}"
+      },
+      "id": "1ae55a40-1ce1-5060-b797-d313f575080d",
+      "name": "Vapi Create Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2750,
+        -40
+      ],
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "crdVapi00000001",
+          "name": "Vapi API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Prep Vapi Call').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst ok = !resp.error && !!resp.id;\nctx.callPlaced = ok;\nctx.callId = ok ? resp.id : '';\nctx.degraded = ok ? [] : ['Vapi outbound call FAILED for ' + ctx.lead.phone + ' (a retry in 5 minutes was queued): ' + errMsg(resp)];\nctx.needsCallback = !ok;\nif (!ok) { ctx.cbDueMs = Date.now() + 5 * 60000; ctx.cbReason = 'call_failed'; }\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "21f7bcb0-5369-5468-9b7c-e66406e2f9c7",
+      "name": "Mark Call Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3000,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.callPlaced = false;\nctx.callId = '';\nctx.needsCallback = true;\nctx.cbDueMs = ctx.dueMs;\nctx.cbReason = ctx.reason;\nctx.degraded = ctx.gateWarning ? [ctx.gateWarning] : [];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "4ad5647e-c8f4-52df-aed8-efdfd6c10b79",
+      "name": "Mark Deferred",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst L = ctx.lead;\nconst body = { locationId: cfg.ghl.location_id, phone: L.phone, source: L.source };\nif (L.firstName) body.firstName = L.firstName;\nif (L.lastName) body.lastName = L.lastName;\nif (L.email) body.email = L.email;\nbody.customFields = cfList(cfg, { ai_lead_source: L.source });\nctx.contactBody = body;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "cec55bbc-2385-5fc8-bfeb-7fff47a9f6ed",
+      "name": "Prep GHL Upsert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep GHL Upsert').item.json.contactBody) }}"
+      },
+      "id": "abef627d-17ec-50fe-bd46-96ef2420c9f6",
+      "name": "GHL Upsert Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2750,
+        0
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Prep GHL Upsert').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst L = ctx.lead;\nctx.contactId = (resp && resp.contact && resp.contact.id) || L.contactId || '';\nconst nm = ((L.firstName || '') + ' ' + (L.lastName || '')).trim() || L.phone;\nctx.oppBody = { pipelineId: cfg.ghl.pipeline_id, locationId: cfg.ghl.location_id, contactId: ctx.contactId, name: nm + ' - ' + (L.interest || 'enquiry'), status: 'open', pipelineStageId: stageId(cfg, 'new_lead') };\nconst tags = ['ai-lead', 'source-' + (L.sourceSlug || 'unknown')];\nlet note;\nif (ctx.callPlaced) { tags.push('ai-call-placed'); note = 'AI voice agent started an outbound call within seconds of the enquiry (call ' + ctx.callId + '). Source: ' + L.source + '.'; }\nelse if (ctx.cbReason === 'call_failed') { tags.push('call-failed'); note = 'The outbound call could NOT be started. A retry is queued for ' + iso(ctx.cbDueMs) + '. Source: ' + L.source + '.'; }\nelse { tags.push('call-deferred'); note = 'Call deferred (' + ctx.cbReason + '). The AI will call at ' + iso(ctx.cbDueMs) + '. Source: ' + L.source + '.'; }\nctx.tagBody = { tags: tags };\nctx.noteBody = { body: note };\nif (ctx.needsCallback) ctx.cbRow = { values: [[mkId(), iso(Date.now()), iso(ctx.cbDueMs), ctx.contactId, L.phone, L.firstName || '', ctx.cbReason, 'ai', 1, 'pending', clip(L.interest || '', 200)]] };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "541a456a-d7da-5b33-bca4-dde6611739fa",
+      "name": "Prep Follow-ups",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/opportunities/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Follow-ups').item.json.oppBody) }}"
+      },
+      "id": "cd00afca-fff9-5d2d-aac6-b5a433bfa0ac",
+      "name": "GHL Upsert Opportunity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3250,
+        0
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('Prep Follow-ups').item.json.contactId + '/tags' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Follow-ups').item.json.tagBody) }}"
+      },
+      "id": "65eb5031-dfb1-53e6-b635-494fbe181807",
+      "name": "GHL Add Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3500,
+        0
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('Prep Follow-ups').item.json.contactId + '/notes' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Follow-ups').item.json.noteBody) }}"
+      },
+      "id": "4eb23261-db8e-5ddb-b713-a317ba5391b1",
+      "name": "GHL Add Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3750,
+        0
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e31a0910-5d85-5659-b9c7-1a93913fc054",
+              "leftValue": "={{ !!($('Prep Follow-ups').item.json.needsCallback) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c412b38a-f777-518f-96ac-dedf1ccda1ab",
+      "name": "Needs Callback Row?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Prep Follow-ups').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Prep Follow-ups').item.json.cfg.google.tabs.callbacks + '!A:K') + ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Follow-ups').item.json.cbRow) }}"
+      },
+      "id": "79fd1d6b-3ef9-5da2-8812-fe6883301b61",
+      "name": "Sheets Append Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4250,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Prep Follow-ups').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst errs = [];\nfor (const n of ['GHL Upsert Contact', 'GHL Upsert Opportunity', 'GHL Add Tags', 'GHL Add Note', 'Sheets Append Callback']) { const m = errMsg(safeResp(n)); if (m) errs.push(n + ': ' + m); }\nconst d = (ctx.degraded || []).slice();\nif (errs.length) d.push('Lead intake CRM/queue problem for ' + ctx.lead.phone + ' -> ' + errs.join(' | '));\nctx.degraded = d;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "8e597b7a-1b46-52e8-af75-65e3d5c7b260",
+      "name": "Final Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "45719b3e-6b4b-5a9a-aef1-0df8489313c7",
+              "leftValue": "={{ !!(($json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b43c2efc-73c1-568e-8486-6a4d4506d568",
+      "name": "Degraded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ $json.degraded.join(' | ') }}"
+      },
+      "id": "c2cceceb-ac10-5971-a32f-5d71901d1e92",
+      "name": "Raise Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        5000,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook: Lead Intake": {
+      "main": [
+        [
+          {
+            "node": "Respond Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Accepted": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Normalize Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Leads": {
+      "main": [
+        [
+          {
+            "node": "Sheets Read DNC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Read DNC": {
+      "main": [
+        [
+          {
+            "node": "Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate": {
+      "main": [
+        [
+          {
+            "node": "Skip?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip?": {
+      "main": [
+        [
+          {
+            "node": "Prep Skip Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Now?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Skip Log": {
+      "main": [
+        [
+          {
+            "node": "Sheets Append Skip Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Now?": {
+      "main": [
+        [
+          {
+            "node": "Prep Vapi Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Deferred",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Vapi Call": {
+      "main": [
+        [
+          {
+            "node": "Vapi Create Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vapi Create Call": {
+      "main": [
+        [
+          {
+            "node": "Mark Call Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Call Result": {
+      "main": [
+        [
+          {
+            "node": "Prep GHL Upsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Deferred": {
+      "main": [
+        [
+          {
+            "node": "Prep GHL Upsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep GHL Upsert": {
+      "main": [
+        [
+          {
+            "node": "GHL Upsert Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Upsert Contact": {
+      "main": [
+        [
+          {
+            "node": "Prep Follow-ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Follow-ups": {
+      "main": [
+        [
+          {
+            "node": "GHL Upsert Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Upsert Opportunity": {
+      "main": [
+        [
+          {
+            "node": "GHL Add Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Add Tags": {
+      "main": [
+        [
+          {
+            "node": "GHL Add Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Add Note": {
+      "main": [
+        [
+          {
+            "node": "Needs Callback Row?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Callback Row?": {
+      "main": [
+        [
+          {
+            "node": "Sheets Append Callback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Final Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Append Callback": {
+      "main": [
+        [
+          {
+            "node": "Final Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Check": {
+      "main": [
+        [
+          {
+            "node": "Degraded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Degraded?": {
+      "main": [
+        [
+          {
+            "node": "Raise Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

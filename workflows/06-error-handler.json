@@ -1,0 +1,265 @@
+{
+  "name": "06 Error Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Error handler\nSet this as the **Error workflow** (Workflow settings) of workflows 01-05. Sends an SMS and/or Slack message to the admin when any execution fails or raises a degraded-service alert.",
+        "height": 120,
+        "width": 700,
+        "color": 7
+      },
+      "id": "a8f9e49d-fe8f-536f-a294-0d638c3684be",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ea16654a-590f-5f0d-9e67-3f58d8b15164",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "c37c3e40-61f5-5eff-987d-28b77d4bb54f",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst cfg = $('Config').first().json.cfg;\nconst e = $('Error Trigger').first().json || {};\nconst wfName = (e.workflow && e.workflow.name) || 'unknown workflow';\nconst ex = e.execution || {};\nconst msg = (ex.error && ex.error.message) || 'unknown error';\nconst node = ex.lastNodeExecuted || (ex.error && ex.error.node && ex.error.node.name) || '';\nconst text = clip('Voice agent alert: ' + wfName + (node ? ' / ' + node : '') + ' - ' + msg + (ex.url ? ' ' + ex.url : ''), 450);\nreturn [{ json: { cfg: cfg, text: text, smsBody: text, smsTo: cfg.admin.alert_sms_number || '', slackUrl: cfg.admin.slack_webhook_url || '' } }];\n"
+      },
+      "id": "0a96fd4c-4fc1-52f9-9e01-dbaeb6b070e3",
+      "name": "Format Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4eb49fdf-ecf3-576c-858d-e104b87d7de1",
+              "leftValue": "={{ !!($json.smsTo) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b45cab82-6e4b-5feb-978f-1fb73f288356",
+      "name": "Admin SMS Set?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.twilio.com/2010-04-01/Accounts/' + $('Format Error').item.json.cfg.twilio.account_sid + '/Messages.json' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "To",
+              "value": "={{ $('Format Error').item.json.smsTo }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $('Format Error').item.json.smsBody }}"
+            },
+            {
+              "name": "From",
+              "value": "={{ $('Format Error').item.json.cfg.twilio.from_number }}"
+            }
+          ]
+        }
+      },
+      "id": "8b54cd03-999d-5fa5-bfd1-bce8114ad157",
+      "name": "Twilio SMS Admin",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        0
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "crdTwilio0000001",
+          "name": "Twilio"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0dd0fcd5-74f0-5fae-9190-455ff6efadf1",
+              "leftValue": "={{ !!($json.slackUrl) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "db93afe9-2773-52fe-9a1b-6f721373b375",
+      "name": "Slack Set?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Format Error').item.json.slackUrl }}",
+        "options": {
+          "timeout": 20000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(({ text: $('Format Error').item.json.text })) }}"
+      },
+      "id": "22a43752-40ae-5bd1-b778-a274d6dbaf1e",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1250,
+        200
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Admin SMS Set?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Set?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin SMS Set?": {
+      "main": [
+        [
+          {
+            "node": "Twilio SMS Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Set?": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

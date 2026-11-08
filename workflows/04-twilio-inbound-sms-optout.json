@@ -1,0 +1,1111 @@
+{
+  "name": "04 Twilio Inbound SMS - Opt-Out Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Inbound SMS\nSTOP-style replies add the number to the DNC sheet, set Do-Not-Disturb in GoHighLevel, move the opportunity to Do Not Contact and cancel pending AI callbacks. Other replies are logged to the contact and forwarded to agents. Twilio itself also blocks further texts to a number that replies STOP.",
+        "height": 150,
+        "width": 700,
+        "color": 7
+      },
+      "id": "c1d7b6f6-30cc-5a96-bca8-941c8ea326e8",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "twilio-sms-REPLACE_WITH_TWILIO_TOKEN",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "31198410-74e0-55d4-ba3c-e78d346e6d91",
+      "name": "Webhook: Twilio SMS",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "1b72d5e9-156b-5f3e-9c75-f4b37da065ff"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<Response></Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "d8fc2acd-6f45-5de2-b60c-8b5bffd8e84b",
+      "name": "Respond Empty TwiML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "e3382ba9-6742-5a10-beba-f6d3ecf68364",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nconst cfg = $('Config').first().json.cfg;\nconst b = $('Webhook: Twilio SMS').first().json.body || {};\nconst phone = normalizePhone(b.From, cfg.agency.default_country_code);\nconst text = String(b.Body || '').trim();\nconst kw = text.toLowerCase().replace(/[^a-z ]/g, '').trim();\nconst words = ['stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit', 'revoke', 'optout', 'opt out'];\nconst phrase = /\\b(stop (calling|texting|messaging|contacting)|do not (call|text|contact)|don'?t (call|text|contact)|remove me|take me off|unsubscribe)\\b/i;\nconst isOptOut = b.OptOutType === 'STOP' || words.includes(kw) || phrase.test(text);\nreturn [{ json: { cfg: cfg, phone: phone, text: text, isOptOut: isOptOut, direction: 'sms', callId: '', args: {}, contactId: '' }, pairedItem: { item: 0 } }];\n"
+      },
+      "id": "9ae6500b-52f0-5a90-941c-5ddb2b4e802b",
+      "name": "Parse SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b3c4d81c-cae0-5fef-a9a6-8fa0095737b9",
+              "leftValue": "={{ !!($json.isOptOut) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9495e26e-a3ca-5908-8e75-f7604e900b4d",
+      "name": "Opt-Out Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Parse SMS').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.optReason = 'sms_stop';\nctx.optSource = 'inbound SMS';\nctx.dncRow = { values: [[ctx.phone, iso(Date.now()), 'sms', 'STOP: ' + clip(ctx.text, 40)]] };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "8673bc29-f49d-5394-ab89-e52ccb1c5e3b",
+      "name": "Prep Opt-Out",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Prep Opt-Out').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Prep Opt-Out').item.json.cfg.google.tabs.dnc + '!A:D') + ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Opt-Out').item.json.dncRow) }}"
+      },
+      "id": "177e6840-6e87-514b-b959-c0a013967788",
+      "name": "Sheets Append DNC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        -200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Prep Opt-Out').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst body = { locationId: cfg.ghl.location_id, phone: ctx.phone, dnd: true };\nbody.customFields = cfList(cfg, { ai_opt_out: 'Yes' });\nctx.contactBody = body;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "70574e66-acd5-5ca8-bb47-f2e0d3086923",
+      "name": "CRM Prep CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1750,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('CRM Prep CRM').item.json.contactBody) }}"
+      },
+      "id": "46de6813-609f-5302-a818-996b5e253f46",
+      "name": "CRM GHL Upsert Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        -200
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('CRM Prep CRM').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.contactId = (resp && resp.contact && resp.contact.id) || ctx.contactId || '';\nctx.tagBody = { tags: ['dnc', 'do-not-contact'] };\nctx.oppBody = { pipelineId: cfg.ghl.pipeline_id, locationId: cfg.ghl.location_id, contactId: ctx.contactId, name: 'Do Not Contact', status: 'lost', pipelineStageId: stageId(cfg, 'dnc') };\nctx.noteBody = { body: 'OPT-OUT recorded (' + ctx.optSource + '). Reason: ' + ctx.optReason + '. Phone ' + ctx.phone + ' added to the suppression list; calls and texts are blocked. Pending AI callbacks cancelled.' };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "48579dc4-d683-5a45-81d2-c7f7f4bac656",
+      "name": "CRM Prep CRM 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('CRM Prep CRM 2').item.json.contactId + '/tags' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('CRM Prep CRM 2').item.json.tagBody) }}"
+      },
+      "id": "62958613-e2b8-5a4c-ade7-dbbee60e5620",
+      "name": "CRM GHL Add Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2500,
+        -200
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/opportunities/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('CRM Prep CRM 2').item.json.oppBody) }}"
+      },
+      "id": "90277e64-5152-5edc-a592-14ed42122520",
+      "name": "CRM GHL Upsert Opportunity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2750,
+        -200
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('CRM Prep CRM 2').item.json.contactId + '/notes' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('CRM Prep CRM 2').item.json.noteBody) }}"
+      },
+      "id": "c392ff9d-d18d-5d83-8f8c-74ac42d64b0e",
+      "name": "CRM GHL Add Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3000,
+        -200
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('CRM Prep CRM 2').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('CRM Prep CRM 2').item.json.cfg.google.tabs.callbacks + '!A1:K2000') }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "id": "ee8268c6-4e37-5db7-83eb-9f9b9eaec938",
+      "name": "CRM Sheets Read Callbacks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3250,
+        -200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\nconst prev = $('CRM Prep CRM 2').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst rows = sheetRows(resp).filter((r) => normalizePhone(r.phone, cfg.agency.default_country_code) === ctx.phone && String(r.status).toLowerCase() === 'pending');\nctx.cancelCount = rows.length;\nctx.cancelBody = { valueInputOption: 'RAW', data: rows.map((r) => ({ range: cfg.google.tabs.callbacks + '!J' + r._row + ':K' + r._row, values: [['cancelled', 'opt-out']] })) };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "a361f2b2-ecdf-5227-a51d-f97d4d16f77a",
+      "name": "CRM Prep Cancel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3500,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8db2e28b-07f3-56f8-9c92-e3e50bb03ade",
+              "leftValue": "={{ !!($json.cancelCount > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5cce5b5c-8191-5c8f-9813-49998a57bc40",
+      "name": "CRM Any Callbacks To Cancel?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3750,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('CRM Prep Cancel').item.json.cfg.google.spreadsheet_id + '/values:batchUpdate' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('CRM Prep Cancel').item.json.cancelBody) }}"
+      },
+      "id": "8e273352-3f40-5107-a5c4-7b89563e3cb8",
+      "name": "CRM Sheets Cancel Callbacks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4000,
+        -200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('CRM Prep Cancel').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst P = 'CRM ';\nconst names = ['GHL Upsert Contact', 'GHL Add Tags', 'GHL Upsert Opportunity', 'GHL Add Note', 'Sheets Read Callbacks', 'Sheets Cancel Callbacks'];\nconst errs = [];\nfor (const n of names) { const m = errMsg(safeResp(P + n)); if (m) errs.push(n + ': ' + m); }\nctx.degraded = errs.length ? ['Opt-out CRM sync problem for ' + ctx.phone + ' (the number IS on the suppression sheet): ' + errs.join(' | ')] : [];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "5a570a46-1083-5b07-9eb9-76c4d84d8408",
+      "name": "CRM Final Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4250,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "453a171c-bb59-5ded-9c16-41f4a8f2c53f",
+              "leftValue": "={{ !!(($json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "99083e54-bbc8-5f6b-850d-166c93489dbe",
+      "name": "CRM Degraded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4500,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ $json.degraded.join(' | ') }}"
+      },
+      "id": "226d316b-d655-56c5-aa7d-e72152e6849e",
+      "name": "CRM Raise Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        4750,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Parse SMS').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.contactBody = { locationId: cfg.ghl.location_id, phone: ctx.phone };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "13e58621-0115-5876-a975-3f1e8d5af846",
+      "name": "Prep Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5000,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Reply').item.json.contactBody) }}"
+      },
+      "id": "1f088a7e-546e-5bb7-ae55-bf0fec46fdb4",
+      "name": "GHL Upsert Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5250,
+        240
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Prep Reply').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.contactId = (resp && resp.contact && resp.contact.id) || '';\nctx.noteBody = { body: 'Inbound SMS from ' + ctx.phone + ': ' + clip(ctx.text, 500) };\nctx.tagBody = { tags: ['sms-reply'] };\nctx.alertNeeded = !!cfg.agents.alert_on_sms_reply;\nctx.alertNumbers = cfg.agents.alert_sms_numbers || [];\nctx.alertText = clip('SMS reply from ' + ctx.phone + ': \"' + clip(ctx.text, 160) + '\" ' + ghlLink(cfg, ctx.contactId), 450);\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "b97651a7-43a4-553d-9e92-307c2ef220ba",
+      "name": "Prep Reply 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5500,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('Prep Reply 2').item.json.contactId + '/notes' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Reply 2').item.json.noteBody) }}"
+      },
+      "id": "9e8ed155-0a3d-5463-add8-a238d491d8eb",
+      "name": "GHL Add Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5750,
+        240
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('Prep Reply 2').item.json.contactId + '/tags' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Prep Reply 2').item.json.tagBody) }}"
+      },
+      "id": "57585cf4-306c-5ee7-a911-2d0ba7126a89",
+      "name": "GHL Add Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6000,
+        240
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a62efa4d-3f80-561b-ad38-8bf8603c7828",
+              "leftValue": "={{ !!($('Prep Reply 2').item.json.alertNeeded) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2179761a-d6c3-5841-b7f7-7e817dcb1d8e",
+      "name": "Reply Alert Needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6250,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst base = $('Prep Reply 2').first().json;\nreturn (base.alertNumbers || []).filter(Boolean).map((n) => ({ json: { cfg: base.cfg, smsTo: n, smsBody: base.alertText } }));\n"
+      },
+      "id": "0f50363d-63c3-52fc-9da1-aa68b812244f",
+      "name": "Reply Expand Alerts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6500,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.twilio.com/2010-04-01/Accounts/' + $('Reply Expand Alerts').item.json.cfg.twilio.account_sid + '/Messages.json' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "To",
+              "value": "={{ $('Reply Expand Alerts').item.json.smsTo }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $('Reply Expand Alerts').item.json.smsBody }}"
+            },
+            {
+              "name": "From",
+              "value": "={{ $('Reply Expand Alerts').item.json.cfg.twilio.from_number }}"
+            }
+          ]
+        }
+      },
+      "id": "5e344baf-80ab-5fd1-b3ac-a12980590f58",
+      "name": "Reply Twilio SMS Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6750,
+        440
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "crdTwilio0000001",
+          "name": "Twilio"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Webhook: Twilio SMS": {
+      "main": [
+        [
+          {
+            "node": "Respond Empty TwiML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Empty TwiML": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Parse SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse SMS": {
+      "main": [
+        [
+          {
+            "node": "Opt-Out Message?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opt-Out Message?": {
+      "main": [
+        [
+          {
+            "node": "Prep Opt-Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prep Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Opt-Out": {
+      "main": [
+        [
+          {
+            "node": "Sheets Append DNC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Append DNC": {
+      "main": [
+        [
+          {
+            "node": "CRM Prep CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Prep CRM": {
+      "main": [
+        [
+          {
+            "node": "CRM GHL Upsert Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM GHL Upsert Contact": {
+      "main": [
+        [
+          {
+            "node": "CRM Prep CRM 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Prep CRM 2": {
+      "main": [
+        [
+          {
+            "node": "CRM GHL Add Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM GHL Add Tags": {
+      "main": [
+        [
+          {
+            "node": "CRM GHL Upsert Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM GHL Upsert Opportunity": {
+      "main": [
+        [
+          {
+            "node": "CRM GHL Add Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM GHL Add Note": {
+      "main": [
+        [
+          {
+            "node": "CRM Sheets Read Callbacks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Sheets Read Callbacks": {
+      "main": [
+        [
+          {
+            "node": "CRM Prep Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Prep Cancel": {
+      "main": [
+        [
+          {
+            "node": "CRM Any Callbacks To Cancel?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Any Callbacks To Cancel?": {
+      "main": [
+        [
+          {
+            "node": "CRM Sheets Cancel Callbacks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM Final Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Sheets Cancel Callbacks": {
+      "main": [
+        [
+          {
+            "node": "CRM Final Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Final Check": {
+      "main": [
+        [
+          {
+            "node": "CRM Degraded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Degraded?": {
+      "main": [
+        [
+          {
+            "node": "CRM Raise Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Reply": {
+      "main": [
+        [
+          {
+            "node": "GHL Upsert Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Upsert Contact": {
+      "main": [
+        [
+          {
+            "node": "Prep Reply 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Reply 2": {
+      "main": [
+        [
+          {
+            "node": "GHL Add Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Add Note": {
+      "main": [
+        [
+          {
+            "node": "GHL Add Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Alert Needed?": {
+      "main": [
+        [
+          {
+            "node": "Reply Expand Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Expand Alerts": {
+      "main": [
+        [
+          {
+            "node": "Reply Twilio SMS Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Add Tags": {
+      "main": [
+        [
+          {
+            "node": "Reply Alert Needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

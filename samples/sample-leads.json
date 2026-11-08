@@ -1,0 +1,16 @@
+[
+  {"name": "Hot buyer, ready now",   "firstName": "Alex",  "lastName": "Morgan", "phone": "+15557010001", "email": "alex@example.com", "consent": true, "source": "Facebook Ads", "propertyInterest": "3-bed house in Riverside",
+   "script": "Buying, budget 550k, Riverside, 3 beds, wants to move within a month, pre-approved, wants a viewing this week. Expect: tier hot, transfer offered, viewing booked, SMS."},
+  {"name": "Warm renter",            "firstName": "Priya", "lastName": "Shah",   "phone": "+15557010002", "email": "priya@example.com", "consent": true, "source": "Website form", "propertyInterest": "2-bed apartment",
+   "script": "Renting, up to 2200 a month, Downtown or Riverside, 2 beds, moving in 2-3 months, no financing needed. Books a Saturday viewing. Expect: warm."},
+  {"name": "Cold browser",           "firstName": "Sam",   "lastName": "Lee",    "phone": "+15557010003", "consent": true, "source": "Zillow", "propertyInterest": "a property",
+   "script": "Just browsing, 6+ months away, no budget. Declines a viewing politely. Expect: cold, nurture tag, no callback."},
+  {"name": "Not now",                "firstName": "Jordan","phone": "+15557010004", "consent": true, "source": "Website form", "propertyInterest": "a condo",
+   "script": "Says 'I'm driving, call me tomorrow afternoon'. Expect: schedule_callback, row in Callbacks sheet, call ends politely."},
+  {"name": "Stop calling",           "firstName": "Chris", "phone": "+15557010005", "consent": true, "source": "Website form", "propertyInterest": "a house",
+   "script": "Says 'Stop calling me.' Expect: apology, opt_out tool, DNC row, GHL DND on, pending callbacks cancelled, call ends. Re-submitting the lead must NOT trigger a call."},
+  {"name": "No consent recorded",    "firstName": "Taylor","phone": "+15557010006", "source": "Purchased list",
+   "script": "No consent field. Expect: workflow skips the lead and no call is placed."},
+  {"name": "Voicemail / no answer",  "firstName": "Robin", "phone": "+15557010007", "consent": true, "source": "Google Ads", "propertyInterest": "a townhouse",
+   "script": "Do not answer (or let voicemail pick up). Expect: voicemail message, retry callback queued per calling.retry_delays_minutes, max 3 attempts."}
+]

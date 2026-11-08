@@ -1,0 +1,22 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "opt_out",
+    "description": "Permanently stop all calls and texts to this number. Call this immediately when the lead asks to stop being contacted, then end the call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "description": "What the lead said, briefly."
+        }
+      }
+    }
+  },
+  "server": {
+    "url": "https://YOUR-INSTANCE.app.n8n.cloud/webhook/vapi-tool-opt-out",
+    "secret": "REPLACE_WITH_VAPI_WEBHOOK_SECRET",
+    "timeoutSeconds": 20
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "check_availability",
+    "description": "Look up open property-viewing slots in the agent calendar. Call this before offering any viewing time. Never invent times.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "preferredDate": {
+          "type": "string",
+          "description": "Day the lead prefers as YYYY-MM-DD in the agency's local time. Leave out if they have no preference."
+        },
+        "timeOfDay": {
+          "type": "string",
+          "description": "Part of the day the lead prefers.",
+          "enum": [
+            "morning",
+            "afternoon",
+            "evening",
+            "any"
+          ]
+        }
+      }
+    }
+  },
+  "server": {
+    "url": "https://YOUR-INSTANCE.app.n8n.cloud/webhook/vapi-tool-check-availability",
+    "secret": "REPLACE_WITH_VAPI_WEBHOOK_SECRET",
+    "timeoutSeconds": 20
+  }
+}

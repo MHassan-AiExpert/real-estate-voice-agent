@@ -1,0 +1,37 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "schedule_callback",
+    "description": "Schedule a follow-up call when the lead says it is a bad time or asks to be called back, or when an agent should call them. Pass the time in the agency's LOCAL time, never UTC.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "callbackLocalTime": {
+          "type": "string",
+          "description": "Local date and time, format YYYY-MM-DDTHH:MM:SS (no timezone suffix)."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why: busy, not_ready, wants_agent_callback, language, other."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Context for whoever calls back."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Lead's first name."
+        }
+      },
+      "required": [
+        "callbackLocalTime"
+      ]
+    }
+  },
+  "server": {
+    "url": "https://YOUR-INSTANCE.app.n8n.cloud/webhook/vapi-tool-schedule-callback",
+    "secret": "REPLACE_WITH_VAPI_WEBHOOK_SECRET",
+    "timeoutSeconds": 20
+  }
+}

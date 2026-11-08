@@ -1,0 +1,101 @@
+{
+  "agency": {
+    "name": "Prime Estates",
+    "persona_name": "Ava",
+    "phone": "+15550100100",
+    "timezone": "America/New_York",
+    "office_hours_text": "Monday to Saturday, 9 a.m. to 6 p.m.",
+    "transfer_name": "one of our senior agents",
+    "default_country_code": "+1"
+  },
+  "n8n": {
+    "base_url": "https://YOUR-N8N-HOST",
+    "tokens": {}
+  },
+  "calling": {
+    "window": { "start": "09:00", "end": "20:00", "days": [1, 2, 3, 4, 5, 6] },
+    "max_attempts": 3,
+    "retry_delays_minutes": [120, 1440, 2880],
+    "require_consent_flag": true,
+    "dedupe_minutes": 10,
+    "scheduler_max_per_run": 5,
+    "scheduler_interval_minutes": 5,
+    "call_interval_ms": 8000
+  },
+  "viewing": {
+    "days": [1, 2, 3, 4, 5, 6],
+    "start": "10:00",
+    "end": "18:00",
+    "slot_minutes": 45,
+    "step_minutes": 60,
+    "buffer_minutes": 15,
+    "min_notice_hours": 3,
+    "horizon_days": 14,
+    "meeting_note": "Please bring photo ID. Your agent will meet you at the property."
+  },
+  "scoring": {
+    "hot_min": 70,
+    "warm_min": 40,
+    "timeline": { "immediately": 35, "within_1_month": 30, "1_3_months": 20, "3_6_months": 8, "6_plus_months": 3, "just_browsing": 0, "unknown": 0 },
+    "financing": { "cash": 25, "pre_approved": 25, "ready_to_apply": 22, "mortgage_in_progress": 14, "not_started": 5, "not_ready": 0, "unknown": 0 },
+    "specificity": { "budget": 8, "area": 7, "bedrooms": 5 },
+    "engagement": { "viewing_interest": { "yes": 15, "maybe": 6, "no": 0, "unknown": 0 }, "viewing_booked": 15, "wants_agent": 5 }
+  },
+  "agents": {
+    "alert_sms_numbers": ["+15550100101"],
+    "transfer_numbers": ["+15550100101"],
+    "transfer_hours": { "start": "09:00", "end": "18:00", "days": [1, 2, 3, 4, 5, 6] },
+    "alert_on_sms_reply": true,
+    "slack_webhook_url": ""
+  },
+  "admin": {
+    "alert_sms_number": "+15550100102",
+    "slack_webhook_url": ""
+  },
+  "twilio": {
+    "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "from_number": "+15550100100",
+    "messaging_service_sid": ""
+  },
+  "ghl": {
+    "location_id": "",
+    "pipeline_name": "AI Lead Follow-up",
+    "pipeline_id": "",
+    "stage_names": {
+      "new_lead": "New Lead",
+      "contacted": "Contacted - No Answer",
+      "qualified_hot": "Qualified - Hot",
+      "qualified_warm": "Qualified - Warm",
+      "nurture": "Nurture - Cold",
+      "viewing_booked": "Viewing Booked",
+      "dnc": "Do Not Contact"
+    },
+    "stage_ids": {},
+    "custom_fields": {}
+  },
+  "vapi": {
+    "phone_number_id": "",
+    "outbound_assistant_id": "",
+    "inbound_assistant_id": "",
+    "llm_provider": "openai",
+    "llm_model": "gpt-4.1",
+    "voice": { "provider": "11labs", "voiceId": "21m00Tcm4TlvDq8ikWAM" },
+    "transcriber": { "provider": "deepgram", "model": "nova-3", "language": "en" },
+    "recording_notice": "This call may be recorded for quality.",
+    "max_call_seconds": 900,
+    "voicemail_message": "",
+    "tool_ids": {}
+  },
+  "google": {
+    "spreadsheet_id": "",
+    "calendar_id": "primary",
+    "tabs": { "listings": "Listings", "callbacks": "Callbacks", "dnc": "DNC", "call_log": "CallLog" }
+  },
+  "api_base": {
+    "ghl": "https://services.leadconnectorhq.com",
+    "vapi": "https://api.vapi.ai",
+    "twilio": "https://api.twilio.com",
+    "gcal": "https://www.googleapis.com/calendar/v3",
+    "sheets": "https://sheets.googleapis.com/v4/spreadsheets"
+  }
+}

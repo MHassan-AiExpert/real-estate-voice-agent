@@ -1,0 +1,1584 @@
+{
+  "name": "02a Vapi Tools - Calendar and Listings",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Vapi tool server A\nTools: **check_availability**, **book_viewing**, **search_listings**.\nVapi calls each tool's own webhook, the workflow replies in the `{results:[{toolCallId,result}]}` format and only afterwards syncs the CRM, so a slow CRM never delays the call.",
+        "height": 150,
+        "width": 620,
+        "color": 7
+      },
+      "id": "e7432528-b85a-5be7-a7ff-50e8c08c55d8",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-tool-check-availability",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "id": "b9766d5a-d888-521c-988b-de68f5e2a937",
+      "name": "[Availability] Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crdWebhook000001",
+          "name": "Vapi Webhook Secret"
+        }
+      },
+      "webhookId": "171cfb03-a438-5e1a-b636-c10967afad28"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "021bdfd8-890e-599a-ab0f-8d0d1e013ceb",
+      "name": "[Availability] Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nconst cfg = $('[Availability] Config').first().json.cfg;\nconst req = $('[Availability] Webhook').first().json;\nconst body = req.body || {};\nconst msg = body.message || body;\nconst call = msg.call || {};\nconst list = msg.toolCallList || msg.toolCalls || [];\nconst phoneRaw = (call.customer && call.customer.number) || (msg.customer && msg.customer.number) || '';\nconst vars = (call.assistantOverrides && call.assistantOverrides.variableValues) || {};\nconst direction = call.type === 'inboundPhoneCall' ? 'inbound' : 'outbound';\nconst out = [];\nfor (const tc of list) {\n  const fn = tc.function || {};\n  let args = fn.arguments !== undefined ? fn.arguments : (tc.arguments !== undefined ? tc.arguments : (tc.parameters || {}));\n  if (typeof args === 'string') { try { args = JSON.parse(args); } catch (e) { args = {}; } }\n  out.push({ json: {\n    cfg: cfg, toolCallId: tc.id, toolName: fn.name || tc.name || '', args: args || {},\n    callId: call.id || '', direction: direction,\n    phone: normalizePhone(phoneRaw, cfg.agency.default_country_code),\n    contactId: vars.contactId || '', firstNameVar: vars.firstName || '', attemptVar: vars.attempt || ''\n  } });\n}\nif (!out.length) out.push({ json: { cfg: cfg, noCalls: true, toolCallId: '', toolName: '', args: {}, phone: '' } });\nreturn out;\n"
+      },
+      "id": "d03f3507-3076-5d3f-9a6e-b51f6fcc9047",
+      "name": "[Availability] Parse Tool Call",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nfunction tzOffsetMs(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);\n  return asUtc - Math.floor(utcMs / 1000) * 1000;\n}\nfunction isoDow(y, m, d) { const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return w === 0 ? 7 : w; }\nfunction localParts(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const y = +p.year, m = +p.month, d = +p.day;\n  return { y: y, m: m, d: d, h: +p.hour, min: +p.minute, dow: isoDow(y, m, d) };\n}\nfunction zonedToUtc(y, m, d, h, min, tz) {\n  const guess = Date.UTC(y, m - 1, d, h, min);\n  const off = tzOffsetMs(guess, tz);\n  let utc = guess - off;\n  const off2 = tzOffsetMs(utc, tz);\n  if (off2 !== off) utc = guess - off2;\n  return utc;\n}\nfunction addDays(y, m, d, n) { const t = new Date(Date.UTC(y, m - 1, d + n)); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }\nfunction hm(s) { const a = String(s).split(':').map(Number); return { h: a[0], m: a[1] || 0 }; }\nfunction fmtLabel(utcMs, tz) {\n  const dt = new Date(utcMs);\n  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(dt);\n  const md = new Intl.DateTimeFormat('en-US', { timeZone: tz, month: 'long', day: 'numeric' }).format(dt);\n  const t = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(dt);\n  return wd + ', ' + md + ' at ' + t;\n}\nfunction inWindow(utcMs, win, tz) {\n  const p = localParts(utcMs, tz);\n  if (!win.days.includes(p.dow)) return false;\n  const s = hm(win.start), e = hm(win.end);\n  const mins = p.h * 60 + p.min;\n  return mins >= s.h * 60 + s.m && mins < e.h * 60 + e.m;\n}\nfunction nextWindowStart(utcMs, win, tz) {\n  if (inWindow(utcMs, win, tz)) return utcMs;\n  const p = localParts(utcMs, tz);\n  const s = hm(win.start);\n  for (let i = 0; i < 9; i++) {\n    const dd = addDays(p.y, p.m, p.d, i);\n    if (!win.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n    const startUtc = zonedToUtc(dd.y, dd.m, dd.d, s.h, s.m, tz);\n    if (startUtc >= utcMs) return startUtc;\n  }\n  return utcMs + 24 * 3600 * 1000;\n}\n\nconst prev = $('[Availability] Parse Tool Call').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst a = ctx.args || {};\nconst v = cfg.viewing, tz = cfg.agency.timezone;\nconst now = Date.now();\nconst minStart = now + v.min_notice_hours * 3600000;\nconst pd = (typeof a.preferredDate === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(a.preferredDate)) ? a.preferredDate : '';\nlet startMs = minStart;\nif (pd) { const p = pd.split('-').map(Number); startMs = Math.max(minStart, zonedToUtc(p[0], p[1], p[2], 0, 0, tz)); }\nconst endMs = startMs + (pd ? 4 : v.horizon_days) * 86400000;\nctx.prefDate = pd;\nctx.fbBody = { timeMin: iso(startMs), timeMax: iso(endMs), timeZone: tz, items: [{ id: cfg.google.calendar_id }] };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "38c909f1-261c-5475-88b0-1965c5d2da95",
+      "name": "[Availability] Prep FreeBusy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://www.googleapis.com/calendar/v3/freeBusy' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Availability] Prep FreeBusy').item.json.fbBody) }}"
+      },
+      "id": "8649e66b-72ee-5e9d-83cb-e298f3612034",
+      "name": "[Availability] Calendar FreeBusy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        0
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "crdGcal000000001",
+          "name": "Google Calendar"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nfunction tzOffsetMs(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);\n  return asUtc - Math.floor(utcMs / 1000) * 1000;\n}\nfunction isoDow(y, m, d) { const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return w === 0 ? 7 : w; }\nfunction localParts(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const y = +p.year, m = +p.month, d = +p.day;\n  return { y: y, m: m, d: d, h: +p.hour, min: +p.minute, dow: isoDow(y, m, d) };\n}\nfunction zonedToUtc(y, m, d, h, min, tz) {\n  const guess = Date.UTC(y, m - 1, d, h, min);\n  const off = tzOffsetMs(guess, tz);\n  let utc = guess - off;\n  const off2 = tzOffsetMs(utc, tz);\n  if (off2 !== off) utc = guess - off2;\n  return utc;\n}\nfunction addDays(y, m, d, n) { const t = new Date(Date.UTC(y, m - 1, d + n)); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }\nfunction hm(s) { const a = String(s).split(':').map(Number); return { h: a[0], m: a[1] || 0 }; }\nfunction fmtLabel(utcMs, tz) {\n  const dt = new Date(utcMs);\n  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(dt);\n  const md = new Intl.DateTimeFormat('en-US', { timeZone: tz, month: 'long', day: 'numeric' }).format(dt);\n  const t = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(dt);\n  return wd + ', ' + md + ' at ' + t;\n}\nfunction inWindow(utcMs, win, tz) {\n  const p = localParts(utcMs, tz);\n  if (!win.days.includes(p.dow)) return false;\n  const s = hm(win.start), e = hm(win.end);\n  const mins = p.h * 60 + p.min;\n  return mins >= s.h * 60 + s.m && mins < e.h * 60 + e.m;\n}\nfunction nextWindowStart(utcMs, win, tz) {\n  if (inWindow(utcMs, win, tz)) return utcMs;\n  const p = localParts(utcMs, tz);\n  const s = hm(win.start);\n  for (let i = 0; i < 9; i++) {\n    const dd = addDays(p.y, p.m, p.d, i);\n    if (!win.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n    const startUtc = zonedToUtc(dd.y, dd.m, dd.d, s.h, s.m, tz);\n    if (startUtc >= utcMs) return startUtc;\n  }\n  return utcMs + 24 * 3600 * 1000;\n}\n\n\nfunction generateSlots(o) {\n  const cfg = o.cfg, busy = o.busy, fromMs = o.fromMs, toMs = o.toMs, prefDate = o.prefDate;\n  const v = cfg.viewing, tz = cfg.agency.timezone;\n  const slotMs = v.slot_minutes * 60000, bufMs = v.buffer_minutes * 60000;\n  const st = hm(v.start), en = hm(v.end);\n  const first = localParts(fromMs, tz);\n  const build = (timeOfDay) => {\n    const all = [];\n    const span = Math.ceil((toMs - fromMs) / 86400000) + 1;\n    for (let i = 0; i <= span; i++) {\n      const dd = addDays(first.y, first.m, first.d, i);\n      if (!v.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n      for (let mins = st.h * 60 + st.m; mins + v.slot_minutes <= en.h * 60 + en.m; mins += v.step_minutes) {\n        const s = zonedToUtc(dd.y, dd.m, dd.d, Math.floor(mins / 60), mins % 60, tz);\n        const e = s + slotMs;\n        if (s < fromMs || s >= toMs) continue;\n        if (busy.some((b) => s - bufMs < b.e && e + bufMs > b.s)) continue;\n        const hr = Math.floor(mins / 60);\n        if (timeOfDay === 'morning' && hr >= 12) continue;\n        if (timeOfDay === 'afternoon' && (hr < 12 || hr >= 17)) continue;\n        if (timeOfDay === 'evening' && hr < 17) continue;\n        all.push({ startMs: s, endMs: e, dateKey: dd.y + '-' + String(dd.m).padStart(2, '0') + '-' + String(dd.d).padStart(2, '0') });\n      }\n    }\n    return all;\n  };\n  let tod = o.timeOfDay && ['morning', 'afternoon', 'evening'].includes(o.timeOfDay) ? o.timeOfDay : '';\n  let all = build(tod);\n  let relaxed = false;\n  if (!all.length && tod) { all = build(''); relaxed = true; }\n  let picks = [];\n  const same = prefDate ? all.filter((x) => x.dateKey === prefDate) : [];\n  if (same.length) {\n    const idx = Array.from(new Set([0, Math.floor((same.length - 1) / 2), same.length - 1]));\n    picks = idx.map((i) => same[i]);\n  } else {\n    const seen = new Set();\n    for (const x of all) { if (!seen.has(x.dateKey)) { seen.add(x.dateKey); picks.push(x); } if (picks.length >= 3) break; }\n  }\n  return { relaxed: relaxed, slots: picks.map((x) => ({ startISO: iso(x.startMs), endISO: iso(x.endMs), label: fmtLabel(x.startMs, tz) })) };\n}\n\nconst prev = $('[Availability] Prep FreeBusy').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst fail = (code, msg) => {\n  ctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify({ ok: false, error: code, message: msg }) };\n  ctx.sideEffects = false;\n  return { json: ctx };\n};\n\nconst tz = cfg.agency.timezone;\nif (resp.error) return fail('calendar_unavailable', 'Could not read the calendar right now.');\nconst cals = resp.calendars || {};\nconst cal = cals[cfg.google.calendar_id] || Object.values(cals)[0] || {};\nif (cal.errors && cal.errors.length) return fail('calendar_unavailable', 'Calendar not accessible.');\nconst busy = (cal.busy || []).map((b) => ({ s: Date.parse(b.start), e: Date.parse(b.end) }));\nconst g = generateSlots({ cfg: cfg, busy: busy, fromMs: Date.parse(ctx.fbBody.timeMin), toMs: Date.parse(ctx.fbBody.timeMax), prefDate: ctx.prefDate, timeOfDay: (ctx.args || {}).timeOfDay });\nconst out = { ok: true, timezone: tz, slots: g.slots.map((s) => ({ startISO: s.startISO, label: s.label })) };\nif (!g.slots.length) out.message = 'No openings found in that window. Try another day.';\nif (g.relaxed) out.note = 'Nothing in the requested time of day; these are the nearest alternatives.';\nctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify(out) };\nctx.sideEffects = false;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "3e606027-b4d2-5b7f-86e6-bb0265664c57",
+      "name": "[Availability] Compute Slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst results = [];\nconst degraded = [];\nfor (const it of $input.all()) {\n  const j = it.json;\n  if (j.vapiResult) results.push(j.vapiResult);\n  if (Array.isArray(j.degraded)) for (const d of j.degraded) degraded.push(d);\n}\nreturn [{ json: { response: { results: results }, degraded: degraded } }];\n"
+      },
+      "id": "35fd3bef-c459-53d5-bc84-1f16bd82f80d",
+      "name": "[Availability] Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.response }}",
+        "options": {}
+      },
+      "id": "f4fc82a1-2684-572f-868a-20af4c79e62a",
+      "name": "[Availability] Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1b3c87b5-95fd-567f-82fb-66607f3b59ae",
+              "leftValue": "={{ !!(($json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2f4e0cdf-8691-5bf6-8470-13e97d261d42",
+      "name": "[Availability] Degraded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ 'Voice agent tool problem: ' + $json.degraded.join(' | ') }}"
+      },
+      "id": "8e4fcc97-f681-5a58-b223-d3b5463e54a2",
+      "name": "[Availability] Raise Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2250,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const names = [\"[Availability] Compute Slots\"];\nconst out = [];\nfor (const n of names) {\n  try {\n    const node = $(n);\n    if (node.isExecuted === false) continue;\n    for (const it of node.all()) { if (it.json.sideEffects) out.push({ json: it.json }); }\n  } catch (e) { /* node did not run for this request */ }\n}\nreturn out;\n"
+      },
+      "id": "accd3b34-45a3-5468-aa8e-2a62ada557ab",
+      "name": "[Availability] Fan Out",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-tool-book-viewing",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "id": "03dbe535-5344-55b2-ad37-ee815164237a",
+      "name": "[Booking] Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        520
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crdWebhook000001",
+          "name": "Vapi Webhook Secret"
+        }
+      },
+      "webhookId": "b1668a7f-2199-5db2-8f3a-34edef73c1d2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "37a9cf78-c378-5e64-8781-acca8e70e41d",
+      "name": "[Booking] Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nconst cfg = $('[Booking] Config').first().json.cfg;\nconst req = $('[Booking] Webhook').first().json;\nconst body = req.body || {};\nconst msg = body.message || body;\nconst call = msg.call || {};\nconst list = msg.toolCallList || msg.toolCalls || [];\nconst phoneRaw = (call.customer && call.customer.number) || (msg.customer && msg.customer.number) || '';\nconst vars = (call.assistantOverrides && call.assistantOverrides.variableValues) || {};\nconst direction = call.type === 'inboundPhoneCall' ? 'inbound' : 'outbound';\nconst out = [];\nfor (const tc of list) {\n  const fn = tc.function || {};\n  let args = fn.arguments !== undefined ? fn.arguments : (tc.arguments !== undefined ? tc.arguments : (tc.parameters || {}));\n  if (typeof args === 'string') { try { args = JSON.parse(args); } catch (e) { args = {}; } }\n  out.push({ json: {\n    cfg: cfg, toolCallId: tc.id, toolName: fn.name || tc.name || '', args: args || {},\n    callId: call.id || '', direction: direction,\n    phone: normalizePhone(phoneRaw, cfg.agency.default_country_code),\n    contactId: vars.contactId || '', firstNameVar: vars.firstName || '', attemptVar: vars.attempt || ''\n  } });\n}\nif (!out.length) out.push({ json: { cfg: cfg, noCalls: true, toolCallId: '', toolName: '', args: {}, phone: '' } });\nreturn out;\n"
+      },
+      "id": "d8eee771-ee27-5912-ba32-2efd8c22d481",
+      "name": "[Booking] Parse Tool Call",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nfunction tzOffsetMs(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);\n  return asUtc - Math.floor(utcMs / 1000) * 1000;\n}\nfunction isoDow(y, m, d) { const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return w === 0 ? 7 : w; }\nfunction localParts(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const y = +p.year, m = +p.month, d = +p.day;\n  return { y: y, m: m, d: d, h: +p.hour, min: +p.minute, dow: isoDow(y, m, d) };\n}\nfunction zonedToUtc(y, m, d, h, min, tz) {\n  const guess = Date.UTC(y, m - 1, d, h, min);\n  const off = tzOffsetMs(guess, tz);\n  let utc = guess - off;\n  const off2 = tzOffsetMs(utc, tz);\n  if (off2 !== off) utc = guess - off2;\n  return utc;\n}\nfunction addDays(y, m, d, n) { const t = new Date(Date.UTC(y, m - 1, d + n)); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }\nfunction hm(s) { const a = String(s).split(':').map(Number); return { h: a[0], m: a[1] || 0 }; }\nfunction fmtLabel(utcMs, tz) {\n  const dt = new Date(utcMs);\n  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(dt);\n  const md = new Intl.DateTimeFormat('en-US', { timeZone: tz, month: 'long', day: 'numeric' }).format(dt);\n  const t = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(dt);\n  return wd + ', ' + md + ' at ' + t;\n}\nfunction inWindow(utcMs, win, tz) {\n  const p = localParts(utcMs, tz);\n  if (!win.days.includes(p.dow)) return false;\n  const s = hm(win.start), e = hm(win.end);\n  const mins = p.h * 60 + p.min;\n  return mins >= s.h * 60 + s.m && mins < e.h * 60 + e.m;\n}\nfunction nextWindowStart(utcMs, win, tz) {\n  if (inWindow(utcMs, win, tz)) return utcMs;\n  const p = localParts(utcMs, tz);\n  const s = hm(win.start);\n  for (let i = 0; i < 9; i++) {\n    const dd = addDays(p.y, p.m, p.d, i);\n    if (!win.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n    const startUtc = zonedToUtc(dd.y, dd.m, dd.d, s.h, s.m, tz);\n    if (startUtc >= utcMs) return startUtc;\n  }\n  return utcMs + 24 * 3600 * 1000;\n}\n\nconst prev = $('[Booking] Parse Tool Call').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst a = ctx.args || {};\nconst v = cfg.viewing, tz = cfg.agency.timezone;\nconst startMs = Date.parse(a.startISO);\nconst now = Date.now();\nctx.invalid = '';\nif (!a.startISO || isNaN(startMs)) ctx.invalid = 'invalid_time';\nelse if (startMs < now + 5 * 60000) ctx.invalid = 'time_in_past';\nelse if (!inWindow(startMs, { days: v.days, start: v.start, end: v.end }, tz)) ctx.invalid = 'outside_viewing_hours';\nctx.startMs = isNaN(startMs) ? now : startMs;\nctx.endMs = ctx.startMs + v.slot_minutes * 60000;\nconst buf = v.buffer_minutes * 60000;\nctx.fbBody = { timeMin: iso(ctx.startMs - buf), timeMax: iso(ctx.endMs + buf), timeZone: tz, items: [{ id: cfg.google.calendar_id }] };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "271633f5-625a-5181-b0e6-f7833b554c8c",
+      "name": "[Booking] Prep Booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://www.googleapis.com/calendar/v3/freeBusy' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Booking] Prep Booking').item.json.fbBody) }}"
+      },
+      "id": "21bd50db-f202-598b-88da-69ac74d3f88a",
+      "name": "[Booking] Calendar Recheck",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        520
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "crdGcal000000001",
+          "name": "Google Calendar"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nfunction tzOffsetMs(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);\n  return asUtc - Math.floor(utcMs / 1000) * 1000;\n}\nfunction isoDow(y, m, d) { const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return w === 0 ? 7 : w; }\nfunction localParts(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const y = +p.year, m = +p.month, d = +p.day;\n  return { y: y, m: m, d: d, h: +p.hour, min: +p.minute, dow: isoDow(y, m, d) };\n}\nfunction zonedToUtc(y, m, d, h, min, tz) {\n  const guess = Date.UTC(y, m - 1, d, h, min);\n  const off = tzOffsetMs(guess, tz);\n  let utc = guess - off;\n  const off2 = tzOffsetMs(utc, tz);\n  if (off2 !== off) utc = guess - off2;\n  return utc;\n}\nfunction addDays(y, m, d, n) { const t = new Date(Date.UTC(y, m - 1, d + n)); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }\nfunction hm(s) { const a = String(s).split(':').map(Number); return { h: a[0], m: a[1] || 0 }; }\nfunction fmtLabel(utcMs, tz) {\n  const dt = new Date(utcMs);\n  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(dt);\n  const md = new Intl.DateTimeFormat('en-US', { timeZone: tz, month: 'long', day: 'numeric' }).format(dt);\n  const t = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(dt);\n  return wd + ', ' + md + ' at ' + t;\n}\nfunction inWindow(utcMs, win, tz) {\n  const p = localParts(utcMs, tz);\n  if (!win.days.includes(p.dow)) return false;\n  const s = hm(win.start), e = hm(win.end);\n  const mins = p.h * 60 + p.min;\n  return mins >= s.h * 60 + s.m && mins < e.h * 60 + e.m;\n}\nfunction nextWindowStart(utcMs, win, tz) {\n  if (inWindow(utcMs, win, tz)) return utcMs;\n  const p = localParts(utcMs, tz);\n  const s = hm(win.start);\n  for (let i = 0; i < 9; i++) {\n    const dd = addDays(p.y, p.m, p.d, i);\n    if (!win.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n    const startUtc = zonedToUtc(dd.y, dd.m, dd.d, s.h, s.m, tz);\n    if (startUtc >= utcMs) return startUtc;\n  }\n  return utcMs + 24 * 3600 * 1000;\n}\n\nconst prev = $('[Booking] Prep Booking').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nif (!ctx.invalid) {\n  if (resp.error) ctx.invalid = 'calendar_unavailable';\n  else {\n    const cals = resp.calendars || {};\n    const cal = cals[cfg.google.calendar_id] || Object.values(cals)[0] || {};\n    if (cal.errors && cal.errors.length) ctx.invalid = 'calendar_unavailable';\n    else if ((cal.busy || []).length) ctx.invalid = 'slot_taken';\n  }\n}\nctx.slotFree = !ctx.invalid;\nconst a = ctx.args || {};\nconst first = String(a.firstName || ctx.firstNameVar || '').trim();\nconst last = String(a.lastName || '').trim();\nctx.leadFirst = first; ctx.leadLast = last;\nctx.leadName = (first + ' ' + last).trim() || 'Lead';\nctx.email = String(a.email || '').trim();\nctx.listing = clip(a.listing || '', 200);\nctx.label = fmtLabel(ctx.startMs, cfg.agency.timezone);\nconst desc = ['Booked by the AI voice agent (' + ctx.direction + ' call).', 'Lead: ' + ctx.leadName, 'Phone: ' + ctx.phone,\n  ctx.email ? 'Email: ' + ctx.email : '', ctx.listing ? 'Property: ' + ctx.listing : '', a.notes ? 'Notes: ' + clip(a.notes, 300) : ''].filter(Boolean).join('\\n');\nctx.eventBody = {\n  summary: 'Property viewing: ' + ctx.leadName, description: desc, location: ctx.listing,\n  start: { dateTime: iso(ctx.startMs), timeZone: cfg.agency.timezone },\n  end: { dateTime: iso(ctx.endMs), timeZone: cfg.agency.timezone },\n  reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 60 }] },\n  extendedProperties: { private: { leadPhone: ctx.phone, source: 'ai-voice-agent', callId: ctx.callId || '' } }\n};\nif (ctx.email) ctx.eventBody.attendees = [{ email: ctx.email }];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "c94b39bf-66d8-5806-97c5-489f4f6777d1",
+      "name": "[Booking] Prep Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "674f24a4-5c99-5c08-9caf-f674604cb603",
+              "leftValue": "={{ !!($json.slotFree) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "22560a27-72b5-536d-b3d0-9917450eebff",
+      "name": "[Booking] Slot Free?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1500,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent($('[Booking] Prep Event').item.json.cfg.google.calendar_id) + '/events?sendUpdates=' + ($('[Booking] Prep Event').item.json.eventBody.attendees ? 'all' : 'none') }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Booking] Prep Event').item.json.eventBody) }}"
+      },
+      "id": "eb397455-9ef5-5952-a022-a6bef5ffea33",
+      "name": "[Booking] Create Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        520
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "crdGcal000000001",
+          "name": "Google Calendar"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Prep Event').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.eventOk = !resp.error && !!resp.id;\nctx.eventId = resp.id || '';\nctx.eventLink = resp.htmlLink || '';\nctx.eventError = errMsg(resp);\nconst name = ctx.leadFirst || 'there';\nctx.smsTo = ctx.phone;\nctx.smsBody = clip('Hi ' + name + ', your property viewing with ' + cfg.agency.name + ' is confirmed for ' + ctx.label\n  + (ctx.listing ? ' (' + ctx.listing + ')' : '') + '. ' + cfg.viewing.meeting_note + ' To change it, call ' + cfg.agency.phone + '. Reply STOP to opt out.', 480);\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "3b2a7fc1-2298-5422-aed5-969898b53ce4",
+      "name": "[Booking] Prep SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1750,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0074de80-2df6-5e17-9765-8302e41e7274",
+              "leftValue": "={{ !!($json.eventOk) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "035fa65a-cce8-5f3b-a8da-6b675eeded05",
+      "name": "[Booking] Event Created?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.twilio.com/2010-04-01/Accounts/' + $('[Booking] Prep SMS').item.json.cfg.twilio.account_sid + '/Messages.json' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "To",
+              "value": "={{ $('[Booking] Prep SMS').item.json.smsTo }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $('[Booking] Prep SMS').item.json.smsBody }}"
+            },
+            {
+              "name": "From",
+              "value": "={{ $('[Booking] Prep SMS').item.json.cfg.twilio.from_number }}"
+            }
+          ]
+        }
+      },
+      "id": "3135a0f0-a814-5e5a-8b6f-d746e7c34f55",
+      "name": "[Booking] Twilio SMS Confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2250,
+        520
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "crdTwilio0000001",
+          "name": "Twilio"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Prep SMS').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.smsSent = !resp.error && !!resp.sid;\nctx.degraded = [];\nif (!ctx.smsSent) ctx.degraded.push('Viewing confirmation SMS NOT sent to ' + ctx.phone + ': ' + (errMsg(resp) || 'no message sid returned'));\nctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify({ ok: true, booked: true, label: ctx.label, confirmationTextSent: ctx.smsSent }) };\nctx.sideEffects = true;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "3246e8ac-99fd-5896-9ddd-496425deac33",
+      "name": "[Booking] Booking Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Prep Event').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst msgs = {\n  slot_taken: 'That time was just taken. Call check_availability again and offer another option.',\n  invalid_time: 'The start time was not valid. Use the startISO exactly as returned by check_availability.',\n  time_in_past: 'That time has already passed. Call check_availability and offer a later option.',\n  outside_viewing_hours: 'That time is outside viewing hours. Call check_availability and offer one of the returned options.',\n  calendar_unavailable: 'The calendar is not reachable right now. Apologise and offer an agent callback.'\n};\nctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify({ ok: false, error: ctx.invalid, message: msgs[ctx.invalid] || 'Could not book that time.' }) };\nctx.sideEffects = false;\nctx.degraded = ctx.invalid === 'calendar_unavailable' ? ['book_viewing: Google Calendar was unreachable for ' + ctx.phone] : [];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "b0d1e066-d601-56b3-a511-bc3817c6aaa5",
+      "name": "[Booking] Slot Unavailable Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Prep SMS').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify({ ok: false, error: 'calendar_error', message: 'The booking could not be saved. Apologise and say an agent will confirm by text shortly.' }) };\nctx.sideEffects = false;\nctx.degraded = ['book_viewing: calendar event creation FAILED for ' + ctx.phone + ' at ' + ctx.label + ': ' + ctx.eventError];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "7ff18fb2-297e-595a-aed2-8976bb6c2443",
+      "name": "[Booking] Booking Failed Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst results = [];\nconst degraded = [];\nfor (const it of $input.all()) {\n  const j = it.json;\n  if (j.vapiResult) results.push(j.vapiResult);\n  if (Array.isArray(j.degraded)) for (const d of j.degraded) degraded.push(d);\n}\nreturn [{ json: { response: { results: results }, degraded: degraded } }];\n"
+      },
+      "id": "07cd7a02-8d10-5bbe-ab39-f0d9467f1127",
+      "name": "[Booking] Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.response }}",
+        "options": {}
+      },
+      "id": "32cee83d-88cb-5441-b43f-b4561e7d6600",
+      "name": "[Booking] Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2750,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8547a50b-6d5b-5401-a1b5-466396bf36e9",
+              "leftValue": "={{ !!(($json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f4b5e4f6-f979-500b-baba-4b813388afa4",
+      "name": "[Booking] Degraded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3000,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ 'Voice agent tool problem: ' + $json.degraded.join(' | ') }}"
+      },
+      "id": "462fd598-caaa-5d63-ab4f-1a8e2a0b186a",
+      "name": "[Booking] Raise Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3250,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const names = [\"[Booking] Booking Result\", \"[Booking] Slot Unavailable Result\", \"[Booking] Booking Failed Result\"];\nconst out = [];\nfor (const n of names) {\n  try {\n    const node = $(n);\n    if (node.isExecuted === false) continue;\n    for (const it of node.all()) { if (it.json.sideEffects) out.push({ json: it.json }); }\n  } catch (e) { /* node did not run for this request */ }\n}\nreturn out;\n"
+      },
+      "id": "0462b539-2e1e-5786-aa6d-7787348e53cc",
+      "name": "[Booking] Fan Out",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3500,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Fan Out').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst body = { locationId: cfg.ghl.location_id, phone: ctx.phone, source: ctx.direction === 'inbound' ? 'AI inbound call' : 'AI outbound call' };\nif (ctx.leadFirst) body.firstName = ctx.leadFirst;\nif (ctx.leadLast) body.lastName = ctx.leadLast;\nif (ctx.email) body.email = ctx.email;\nbody.customFields = cfList(cfg, { ai_viewing_datetime: ctx.label, ai_viewing_event_id: ctx.eventId, ai_viewing_call_id: ctx.callId });\nctx.contactBody = body;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "aad7d491-7229-5e7b-a661-29605aee6173",
+      "name": "[Booking] Prep CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3750,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Booking] Prep CRM').item.json.contactBody) }}"
+      },
+      "id": "4f05f701-ae16-582e-a4fd-ebccea98ae47",
+      "name": "[Booking] GHL Upsert Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4000,
+        880
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Prep CRM').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nctx.contactId = (resp && resp.contact && resp.contact.id) || ctx.contactId || '';\nctx.oppBody = { pipelineId: cfg.ghl.pipeline_id, locationId: cfg.ghl.location_id, contactId: ctx.contactId, name: ctx.leadName + ' - viewing', status: 'open', pipelineStageId: stageId(cfg, 'viewing_booked') };\nctx.tagBody = { tags: ['viewing-booked', 'ai-booked'] };\nctx.noteBody = { body: 'AI booked a property viewing for ' + ctx.label + (ctx.listing ? ' (' + ctx.listing + ')' : '') + '. SMS confirmation: ' + (ctx.smsSent ? 'sent' : 'FAILED') + '. Calendar event: ' + (ctx.eventLink || ctx.eventId) };\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "d552fefa-6a75-52b5-8d75-79ba6c50bb8d",
+      "name": "[Booking] Prep CRM 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4250,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/opportunities/upsert' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Booking] Prep CRM 2').item.json.oppBody) }}"
+      },
+      "id": "115b5d8a-62d6-53b7-8127-5aa12f252183",
+      "name": "[Booking] GHL Upsert Opportunity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4500,
+        880
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('[Booking] Prep CRM 2').item.json.contactId + '/tags' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Booking] Prep CRM 2').item.json.tagBody) }}"
+      },
+      "id": "59a22b12-8585-5f21-9979-1c8ae19cc9f0",
+      "name": "[Booking] GHL Add Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4750,
+        880
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://services.leadconnectorhq.com' + '/contacts/' + $('[Booking] Prep CRM 2').item.json.contactId + '/notes' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('[Booking] Prep CRM 2').item.json.noteBody) }}"
+      },
+      "id": "896e3547-11b9-5a56-84f9-bedd92966c48",
+      "name": "[Booking] GHL Add Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5000,
+        880
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "crdGhl000000001",
+          "name": "GoHighLevel Private Integration Token"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Booking] Prep CRM 2').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst P = '[Booking] ';\nconst errs = [];\nfor (const n of ['GHL Upsert Contact', 'GHL Upsert Opportunity', 'GHL Add Tags', 'GHL Add Note']) { const m = errMsg(safeResp(P + n)); if (m) errs.push(n + ': ' + m); }\nctx.degraded = errs.length ? ['Viewing was booked in Google Calendar for ' + ctx.phone + ' but CRM sync had problems -> ' + errs.join(' | ')] : [];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "d51a53ce-bb2c-5ade-8d2a-df41447e557f",
+      "name": "[Booking] Final Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5250,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bc03d284-2f53-51f8-9820-5b6dab1c015c",
+              "leftValue": "={{ !!(($json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "81bc271a-d9e6-540e-bf1a-9d2351bd9afe",
+      "name": "[Booking] CRM Problem?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5500,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ $json.degraded.join(' | ') }}"
+      },
+      "id": "8e6ee2bb-8717-5f2e-be56-4e6844e4acb6",
+      "name": "[Booking] Raise CRM Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        5750,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-tool-search-listings",
+        "responseMode": "responseNode",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "id": "47f9e51f-acbd-53ed-8225-d1f3a50ccddf",
+      "name": "[Listings] Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crdWebhook000001",
+          "name": "Vapi Webhook Secret"
+        }
+      },
+      "webhookId": "8561b1d6-48ce-571a-b69d-b997c1d0cb78"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "e69ded42-8098-5cf1-adf6-173be72e3015",
+      "name": "[Listings] Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nconst cfg = $('[Listings] Config').first().json.cfg;\nconst req = $('[Listings] Webhook').first().json;\nconst body = req.body || {};\nconst msg = body.message || body;\nconst call = msg.call || {};\nconst list = msg.toolCallList || msg.toolCalls || [];\nconst phoneRaw = (call.customer && call.customer.number) || (msg.customer && msg.customer.number) || '';\nconst vars = (call.assistantOverrides && call.assistantOverrides.variableValues) || {};\nconst direction = call.type === 'inboundPhoneCall' ? 'inbound' : 'outbound';\nconst out = [];\nfor (const tc of list) {\n  const fn = tc.function || {};\n  let args = fn.arguments !== undefined ? fn.arguments : (tc.arguments !== undefined ? tc.arguments : (tc.parameters || {}));\n  if (typeof args === 'string') { try { args = JSON.parse(args); } catch (e) { args = {}; } }\n  out.push({ json: {\n    cfg: cfg, toolCallId: tc.id, toolName: fn.name || tc.name || '', args: args || {},\n    callId: call.id || '', direction: direction,\n    phone: normalizePhone(phoneRaw, cfg.agency.default_country_code),\n    contactId: vars.contactId || '', firstNameVar: vars.firstName || '', attemptVar: vars.attempt || ''\n  } });\n}\nif (!out.length) out.push({ json: { cfg: cfg, noCalls: true, toolCallId: '', toolName: '', args: {}, phone: '' } });\nreturn out;\n"
+      },
+      "id": "467e5f48-555b-554b-9446-3cd43da49aa8",
+      "name": "[Listings] Parse Tool Call",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('[Listings] Parse Tool Call').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('[Listings] Parse Tool Call').item.json.cfg.google.tabs.listings + '!A1:V500') }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "id": "f73f00f6-16c2-544e-82ba-e4f0bb0a9283",
+      "name": "[Listings] Sheets Read Listings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        750,
+        1260
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('[Listings] Parse Tool Call').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst fail = (code, msg) => {\n  ctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify({ ok: false, error: code, message: msg }) };\n  ctx.sideEffects = false;\n  return { json: ctx };\n};\n\nconst a = ctx.args || {};\nif (resp.error) return fail('listings_unavailable', 'Could not read the listings right now.');\nconst rows = sheetRows(resp);\nconst lc = (s) => String(s === undefined || s === null ? '' : s).toLowerCase();\nconst num = (s) => { const n = parseFloat(String(s).replace(/[^0-9.]/g, '')); return isNaN(n) ? null : n; };\nconst wantType = a.intent === 'buy' ? 'sale' : (a.intent === 'rent' ? 'rent' : '');\nconst area = lc(a.area).trim();\nconst areaTokens = area.split(/[^a-z0-9]+/).filter((t) => t.length > 2);\nconst stop = new Set(['the', 'and', 'for', 'with', 'near', 'any', 'home', 'place', 'properties', 'property', 'listing', 'listings', 'have', 'you']);\nconst kw = lc([a.query, a.listingRef].filter(Boolean).join(' ')).split(/[^a-z0-9-]+/).filter((t) => t.length > 2 && !stop.has(t));\nconst ref = lc(a.listingRef).trim();\nlet list = rows.filter((r) => lc(r.status) === 'active');\nif (ref) {\n  let hit = list.filter((r) => lc(r.listing_id) === ref);\n  if (!hit.length) hit = list.filter((r) => lc([r.address, r.title].join(' ')).includes(ref));\n  list = hit;  // an explicit listing reference that matches nothing must return nothing, never \"similar\" listings\n}\nif (wantType) list = list.filter((r) => lc(r.type) === wantType);\nif (a.minBedrooms !== undefined && a.minBedrooms !== null && a.minBedrooms !== '') list = list.filter((r) => (num(r.bedrooms) || 0) >= Number(a.minBedrooms));\nif (a.maxPrice) list = list.filter((r) => num(r.price) !== null && num(r.price) <= Number(a.maxPrice));\nif (a.minPrice) list = list.filter((r) => num(r.price) !== null && num(r.price) >= Number(a.minPrice));\nif (a.propertyType) list = list.filter((r) => lc(r.property_type).includes(lc(a.propertyType).trim()));\nif (area) {\n  list = list.filter((r) => {\n    const hay = lc([r.neighborhood, r.city, r.address, r.title].join(' '));\n    return hay.includes(area) || (areaTokens.length > 0 && areaTokens.every((t) => hay.includes(t)));\n  });\n}\nconst hayAll = (r) => lc(Object.values(r).join(' '));\nlist.forEach((r) => { r._score = kw.filter((t) => hayAll(r).includes(t)).length; });\nif (kw.length && !ref) { const matched = list.filter((r) => r._score > 0); if (matched.length) list = matched; }\nlist.sort((x, y) => (y._score - x._score) || ((num(x.price) || 0) - (num(y.price) || 0)));\nconst brief = (r) => ({ id: r.listing_id, title: r.title, address: r.address, area: r.neighborhood, city: r.city,\n  type: lc(r.type) === 'sale' ? 'for sale' : 'for rent', price: num(r.price), currency: r.currency || '',\n  bedrooms: num(r.bedrooms), bathrooms: num(r.bathrooms), sqft: num(r.sqft), propertyType: r.property_type,\n  petsAllowed: r.pets_allowed, parking: r.parking, availableFrom: r.available_from, highlights: clip(r.highlights, 200) });\nconst out = { ok: true, totalMatches: list.length, matches: list.slice(0, 3).map(brief) };\nif (!list.length) out.message = 'No active listings match those filters.';\nctx.vapiResult = { toolCallId: ctx.toolCallId, result: JSON.stringify(out) };\nctx.sideEffects = false;\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "a40dd199-e54c-52ec-a521-4f59d56c9d84",
+      "name": "[Listings] Filter Listings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst results = [];\nconst degraded = [];\nfor (const it of $input.all()) {\n  const j = it.json;\n  if (j.vapiResult) results.push(j.vapiResult);\n  if (Array.isArray(j.degraded)) for (const d of j.degraded) degraded.push(d);\n}\nreturn [{ json: { response: { results: results }, degraded: degraded } }];\n"
+      },
+      "id": "e51b124a-20ca-5dd0-81b9-f30fedf6bc4a",
+      "name": "[Listings] Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.response }}",
+        "options": {}
+      },
+      "id": "6811accf-1270-5be8-9f00-a9060c2d025c",
+      "name": "[Listings] Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "176aa411-4000-54a0-ad25-97fe29b3ef47",
+              "leftValue": "={{ !!(($json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "85f29185-a6da-5023-b91e-33faa1f771c3",
+      "name": "[Listings] Degraded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1750,
+        1140
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ 'Voice agent tool problem: ' + $json.degraded.join(' | ') }}"
+      },
+      "id": "f410a3e8-d4a2-53f6-a3d1-e9fc7feb9dde",
+      "name": "[Listings] Raise Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        1140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const names = [\"[Listings] Filter Listings\"];\nconst out = [];\nfor (const n of names) {\n  try {\n    const node = $(n);\n    if (node.isExecuted === false) continue;\n    for (const it of node.all()) { if (it.json.sideEffects) out.push({ json: it.json }); }\n  } catch (e) { /* node did not run for this request */ }\n}\nreturn out;\n"
+      },
+      "id": "b204df2d-5e60-5c0f-937d-1cbe0f5df409",
+      "name": "[Listings] Fan Out",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        1380
+      ]
+    }
+  ],
+  "connections": {
+    "[Availability] Webhook": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Config": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Parse Tool Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Parse Tool Call": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Prep FreeBusy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Prep FreeBusy": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Calendar FreeBusy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Calendar FreeBusy": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Compute Slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Compute Slots": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Build Response": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Respond to Vapi": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Degraded?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "[Availability] Fan Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Availability] Degraded?": {
+      "main": [
+        [
+          {
+            "node": "[Availability] Raise Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Webhook": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Config": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Parse Tool Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Parse Tool Call": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Prep Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Prep Booking": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Calendar Recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Calendar Recheck": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Prep Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Prep Event": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Slot Free?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Slot Free?": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Create Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "[Booking] Slot Unavailable Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Create Event": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Prep SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Prep SMS": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Event Created?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Event Created?": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Twilio SMS Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "[Booking] Booking Failed Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Twilio SMS Confirmation": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Booking Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Booking Result": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Slot Unavailable Result": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Booking Failed Result": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Build Response": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Respond to Vapi": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Degraded?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "[Booking] Fan Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Degraded?": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Raise Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Fan Out": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Prep CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Prep CRM": {
+      "main": [
+        [
+          {
+            "node": "[Booking] GHL Upsert Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] GHL Upsert Contact": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Prep CRM 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Prep CRM 2": {
+      "main": [
+        [
+          {
+            "node": "[Booking] GHL Upsert Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] GHL Upsert Opportunity": {
+      "main": [
+        [
+          {
+            "node": "[Booking] GHL Add Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] GHL Add Tags": {
+      "main": [
+        [
+          {
+            "node": "[Booking] GHL Add Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] GHL Add Note": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Final Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] Final Check": {
+      "main": [
+        [
+          {
+            "node": "[Booking] CRM Problem?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Booking] CRM Problem?": {
+      "main": [
+        [
+          {
+            "node": "[Booking] Raise CRM Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Webhook": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Config": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Parse Tool Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Parse Tool Call": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Sheets Read Listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Sheets Read Listings": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Filter Listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Filter Listings": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Build Response": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Respond to Vapi": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Degraded?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "[Listings] Fan Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[Listings] Degraded?": {
+      "main": [
+        [
+          {
+            "node": "[Listings] Raise Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

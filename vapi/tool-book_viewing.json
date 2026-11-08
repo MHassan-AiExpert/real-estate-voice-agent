@@ -1,0 +1,45 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "book_viewing",
+    "description": "Book a property viewing in the calendar and text the lead a confirmation. Only call after the lead has clearly agreed to a specific slot returned by check_availability. Use the exact startISO value from that tool.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "startISO": {
+          "type": "string",
+          "description": "Exact start time of the chosen slot, ISO 8601, copied from check_availability."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Lead's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Lead's last name, if given."
+        },
+        "email": {
+          "type": "string",
+          "description": "Lead's email address if they offered it."
+        },
+        "listing": {
+          "type": "string",
+          "description": "Listing id or address the viewing is for."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Anything the agent should know before the viewing."
+        }
+      },
+      "required": [
+        "startISO"
+      ]
+    }
+  },
+  "server": {
+    "url": "https://YOUR-INSTANCE.app.n8n.cloud/webhook/vapi-tool-book-viewing",
+    "secret": "REPLACE_WITH_VAPI_WEBHOOK_SECRET",
+    "timeoutSeconds": 20
+  }
+}

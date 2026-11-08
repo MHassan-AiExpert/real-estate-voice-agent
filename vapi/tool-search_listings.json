@@ -1,0 +1,54 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "search_listings",
+    "description": "Search the agency's active listings. Use this before stating any fact about a property: price, bedrooms, availability, pets, parking. Never answer listing questions from memory.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Free-text description, e.g. 'pet friendly apartment near the station'."
+        },
+        "intent": {
+          "type": "string",
+          "description": "buy or rent.",
+          "enum": [
+            "buy",
+            "rent"
+          ]
+        },
+        "area": {
+          "type": "string",
+          "description": "Neighbourhood or city."
+        },
+        "minBedrooms": {
+          "type": "number",
+          "description": "Minimum number of bedrooms."
+        },
+        "maxPrice": {
+          "type": "number",
+          "description": "Maximum price (sale price, or monthly rent)."
+        },
+        "minPrice": {
+          "type": "number",
+          "description": "Minimum price."
+        },
+        "propertyType": {
+          "type": "string",
+          "description": "e.g. apartment, house, condo, townhouse, studio."
+        },
+        "listingRef": {
+          "type": "string",
+          "description": "A listing id or street address the caller mentioned."
+        }
+      }
+    }
+  },
+  "server": {
+    "url": "https://YOUR-INSTANCE.app.n8n.cloud/webhook/vapi-tool-search-listings",
+    "secret": "REPLACE_WITH_VAPI_WEBHOOK_SECRET",
+    "timeoutSeconds": 20
+  }
+}

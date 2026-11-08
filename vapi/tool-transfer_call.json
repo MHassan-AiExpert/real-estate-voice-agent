@@ -1,0 +1,16 @@
+{
+  "type": "transferCall",
+  "destinations": [
+    {
+      "type": "number",
+      "number": "+15550100101",
+      "numberE164CheckEnabled": true,
+      "message": "One moment, I'll connect you to one of our senior agents now.",
+      "description": "Live transfer to a human agent"
+    }
+  ],
+  "function": {
+    "name": "transfer_call",
+    "description": "Transfer the call to a human agent. Only after save_qualification returned transferAvailable true AND the lead agreed to be transferred."
+  }
+}

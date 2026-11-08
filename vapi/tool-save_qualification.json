@@ -1,0 +1,108 @@
+{
+  "type": "function",
+  "async": false,
+  "function": {
+    "name": "save_qualification",
+    "description": "Save what you learned about the lead so it is scored and written to the CRM. Call it once you have the main answers, or when the call is ending, even if some answers are missing. Returns the lead tier and whether a live transfer is available.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "intent": {
+          "type": "string",
+          "description": "Whether the lead wants to buy or rent.",
+          "enum": [
+            "buy",
+            "rent"
+          ]
+        },
+        "budgetMin": {
+          "type": "number",
+          "description": "Minimum budget as a plain number."
+        },
+        "budgetMax": {
+          "type": "number",
+          "description": "Maximum budget as a plain number."
+        },
+        "preferredArea": {
+          "type": "string",
+          "description": "Preferred neighbourhood or area."
+        },
+        "bedrooms": {
+          "type": "number",
+          "description": "Number of bedrooms wanted."
+        },
+        "timeline": {
+          "type": "string",
+          "description": "How soon they want to move.",
+          "enum": [
+            "immediately",
+            "within_1_month",
+            "1_3_months",
+            "3_6_months",
+            "6_plus_months",
+            "just_browsing",
+            "unknown"
+          ]
+        },
+        "financing": {
+          "type": "string",
+          "description": "How they will pay or finance.",
+          "enum": [
+            "cash",
+            "pre_approved",
+            "ready_to_apply",
+            "mortgage_in_progress",
+            "not_started",
+            "not_ready",
+            "unknown"
+          ]
+        },
+        "viewingInterest": {
+          "type": "string",
+          "description": "Whether they want to see a property.",
+          "enum": [
+            "yes",
+            "maybe",
+            "no"
+          ]
+        },
+        "wantsAgent": {
+          "type": "boolean",
+          "description": "True if they asked to speak to a person."
+        },
+        "outcome": {
+          "type": "string",
+          "description": "Set to not_interested only if the lead said they are not interested.",
+          "enum": [
+            "interested",
+            "not_interested"
+          ]
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Lead's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Lead's last name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address."
+        },
+        "notes": {
+          "type": "string",
+          "description": "One or two sentences of anything else useful for the agent."
+        }
+      },
+      "required": [
+        "intent"
+      ]
+    }
+  },
+  "server": {
+    "url": "https://YOUR-INSTANCE.app.n8n.cloud/webhook/vapi-tool-save-qualification",
+    "secret": "REPLACE_WITH_VAPI_WEBHOOK_SECRET",
+    "timeoutSeconds": 20
+  }
+}

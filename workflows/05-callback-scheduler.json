@@ -1,0 +1,475 @@
+{
+  "name": "05 Callback Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Callback scheduler\nEvery 5 min (inside calling hours) picks due rows from the **Callbacks** sheet (handler = ai, status = pending), re-checks the DNC sheet, then places the call through Vapi. Retries for no-answer/voicemail, 'call me later' requests and out-of-hours leads all land here.",
+        "height": 150,
+        "width": 700,
+        "color": 7
+      },
+      "id": "27cc4889-8b17-5bae-b8bb-c82f9956b83d",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "e684962e-8411-504b-a34f-36c23857e934",
+      "name": "Every Few Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONFIG (generated from config.json by tools/build_workflows.py).\n// Values can be edited here directly in n8n; re-running the build overwrites them.\nreturn [{ json: { cfg: {\n  \"agency\": {\n    \"name\": \"Prime Estates\",\n    \"persona_name\": \"Ava\",\n    \"phone\": \"+15550100100\",\n    \"timezone\": \"America/New_York\",\n    \"office_hours_text\": \"Monday to Saturday, 9 a.m. to 6 p.m.\",\n    \"transfer_name\": \"one of our senior agents\",\n    \"default_country_code\": \"+1\"\n  },\n  \"calling\": {\n    \"window\": {\n      \"start\": \"09:00\",\n      \"end\": \"20:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"max_attempts\": 3,\n    \"retry_delays_minutes\": [\n      120,\n      1440,\n      2880\n    ],\n    \"require_consent_flag\": true,\n    \"dedupe_minutes\": 10,\n    \"scheduler_max_per_run\": 5,\n    \"scheduler_interval_minutes\": 5,\n    \"call_interval_ms\": 8000\n  },\n  \"viewing\": {\n    \"days\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6\n    ],\n    \"start\": \"10:00\",\n    \"end\": \"18:00\",\n    \"slot_minutes\": 45,\n    \"step_minutes\": 60,\n    \"buffer_minutes\": 15,\n    \"min_notice_hours\": 3,\n    \"horizon_days\": 14,\n    \"meeting_note\": \"Please bring photo ID. Your agent will meet you at the property.\"\n  },\n  \"scoring\": {\n    \"hot_min\": 70,\n    \"warm_min\": 40,\n    \"timeline\": {\n      \"immediately\": 35,\n      \"within_1_month\": 30,\n      \"1_3_months\": 20,\n      \"3_6_months\": 8,\n      \"6_plus_months\": 3,\n      \"just_browsing\": 0,\n      \"unknown\": 0\n    },\n    \"financing\": {\n      \"cash\": 25,\n      \"pre_approved\": 25,\n      \"ready_to_apply\": 22,\n      \"mortgage_in_progress\": 14,\n      \"not_started\": 5,\n      \"not_ready\": 0,\n      \"unknown\": 0\n    },\n    \"specificity\": {\n      \"budget\": 8,\n      \"area\": 7,\n      \"bedrooms\": 5\n    },\n    \"engagement\": {\n      \"viewing_interest\": {\n        \"yes\": 15,\n        \"maybe\": 6,\n        \"no\": 0,\n        \"unknown\": 0\n      },\n      \"viewing_booked\": 15,\n      \"wants_agent\": 5\n    }\n  },\n  \"agents\": {\n    \"alert_sms_numbers\": [],\n    \"transfer_numbers\": [],\n    \"transfer_hours\": {\n      \"start\": \"09:00\",\n      \"end\": \"18:00\",\n      \"days\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n      ]\n    },\n    \"alert_on_sms_reply\": true,\n    \"slack_webhook_url\": \"\"\n  },\n  \"admin\": {\n    \"alert_sms_number\": \"+15550100102\",\n    \"slack_webhook_url\": \"\"\n  },\n  \"twilio\": {\n    \"account_sid\": \"ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"from_number\": \"+15550100100\",\n    \"messaging_service_sid\": \"\"\n  },\n  \"ghl\": {\n    \"location_id\": \"\",\n    \"pipeline_name\": \"AI Lead Follow-up\",\n    \"pipeline_id\": \"\",\n    \"stage_names\": {\n      \"new_lead\": \"New Lead\",\n      \"contacted\": \"Contacted - No Answer\",\n      \"qualified_hot\": \"Qualified - Hot\",\n      \"qualified_warm\": \"Qualified - Warm\",\n      \"nurture\": \"Nurture - Cold\",\n      \"viewing_booked\": \"Viewing Booked\",\n      \"dnc\": \"Do Not Contact\"\n    },\n    \"stage_ids\": {},\n    \"custom_fields\": {}\n  },\n  \"google\": {\n    \"spreadsheet_id\": \"YOUR_GOOGLE_SHEET_ID\",\n    \"calendar_id\": \"primary\",\n    \"tabs\": {\n      \"listings\": \"Listings\",\n      \"callbacks\": \"Callbacks\",\n      \"dnc\": \"DNC\",\n      \"call_log\": \"CallLog\"\n    }\n  },\n  \"vapi\": {\n    \"phone_number_id\": \"\",\n    \"outbound_assistant_id\": \"YOUR_OUTBOUND_ASSISTANT_ID\",\n    \"inbound_assistant_id\": \"YOUR_INBOUND_ASSISTANT_ID\"\n  },\n  \"api_base\": {\n    \"ghl\": \"https://services.leadconnectorhq.com\",\n    \"vapi\": \"https://api.vapi.ai\",\n    \"twilio\": \"https://api.twilio.com\",\n    \"gcal\": \"https://www.googleapis.com/calendar/v3\",\n    \"sheets\": \"https://sheets.googleapis.com/v4/spreadsheets\"\n  }\n} } }];\n"
+      },
+      "id": "f7642512-9a13-5c95-93f4-a4d88d63a32a",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nfunction tzOffsetMs(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);\n  return asUtc - Math.floor(utcMs / 1000) * 1000;\n}\nfunction isoDow(y, m, d) { const w = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); return w === 0 ? 7 : w; }\nfunction localParts(utcMs, tz) {\n  const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });\n  const p = {};\n  for (const x of dtf.formatToParts(new Date(utcMs))) p[x.type] = x.value;\n  const y = +p.year, m = +p.month, d = +p.day;\n  return { y: y, m: m, d: d, h: +p.hour, min: +p.minute, dow: isoDow(y, m, d) };\n}\nfunction zonedToUtc(y, m, d, h, min, tz) {\n  const guess = Date.UTC(y, m - 1, d, h, min);\n  const off = tzOffsetMs(guess, tz);\n  let utc = guess - off;\n  const off2 = tzOffsetMs(utc, tz);\n  if (off2 !== off) utc = guess - off2;\n  return utc;\n}\nfunction addDays(y, m, d, n) { const t = new Date(Date.UTC(y, m - 1, d + n)); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }\nfunction hm(s) { const a = String(s).split(':').map(Number); return { h: a[0], m: a[1] || 0 }; }\nfunction fmtLabel(utcMs, tz) {\n  const dt = new Date(utcMs);\n  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(dt);\n  const md = new Intl.DateTimeFormat('en-US', { timeZone: tz, month: 'long', day: 'numeric' }).format(dt);\n  const t = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(dt);\n  return wd + ', ' + md + ' at ' + t;\n}\nfunction inWindow(utcMs, win, tz) {\n  const p = localParts(utcMs, tz);\n  if (!win.days.includes(p.dow)) return false;\n  const s = hm(win.start), e = hm(win.end);\n  const mins = p.h * 60 + p.min;\n  return mins >= s.h * 60 + s.m && mins < e.h * 60 + e.m;\n}\nfunction nextWindowStart(utcMs, win, tz) {\n  if (inWindow(utcMs, win, tz)) return utcMs;\n  const p = localParts(utcMs, tz);\n  const s = hm(win.start);\n  for (let i = 0; i < 9; i++) {\n    const dd = addDays(p.y, p.m, p.d, i);\n    if (!win.days.includes(isoDow(dd.y, dd.m, dd.d))) continue;\n    const startUtc = zonedToUtc(dd.y, dd.m, dd.d, s.h, s.m, tz);\n    if (startUtc >= utcMs) return startUtc;\n  }\n  return utcMs + 24 * 3600 * 1000;\n}\n\n\nconst cfg = $('Config').first().json.cfg;\nif (!inWindow(Date.now(), cfg.calling.window, cfg.agency.timezone)) return [];\nreturn [{ json: { cfg: cfg } }];\n"
+      },
+      "id": "3721ef38-40dc-5242-9058-840baa972809",
+      "name": "Check Calling Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Config').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Config').item.json.cfg.google.tabs.callbacks + '!A1:K5000') }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "id": "587d2121-13df-5d41-a94f-10b371373d73",
+      "name": "Sheets Read Callbacks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        750,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Config').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Config').item.json.cfg.google.tabs.dnc + '!A1:D5000') }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "id": "994b5e7a-b77b-5b55-b66e-bccdee809cfd",
+      "name": "Sheets Read DNC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\n\nconst E164 = /^\\+[1-9]\\d{7,14}$/;\nfunction normalizePhone(raw, cc) {\n  if (raw === undefined || raw === null) return '';\n  const s = String(raw).trim();\n  if (!s) return '';\n  const d = s.replace(/[^0-9]/g, '');\n  if (!d) return '';\n  if (s.startsWith('+')) return '+' + d;\n  if (d.startsWith('00')) return '+' + d.slice(2);\n  const ccd = String(cc || '+1').replace(/[^0-9]/g, '');\n  if (d.startsWith('0')) return '+' + ccd + d.slice(1);\n  if (ccd === '1' && d.length === 11 && d.startsWith('1')) return '+' + d;\n  if (d.startsWith(ccd) && d.length > 10) return '+' + d;\n  return '+' + ccd + d;\n}\n\n\nconst cfg = $('Config').first().json.cfg;\nconst dncResp = $input.first().json;\nconst cbResp = $('Sheets Read Callbacks').first().json;\nconst sd = $getWorkflowStaticData('global');\nconst now = Date.now();\nif ((dncResp && dncResp.error) || (cbResp && cbResp.error)) {\n  if (!sd.lastReadAlert || now - sd.lastReadAlert > 3600000) { sd.lastReadAlert = now; throw new Error('Callback scheduler paused: could not read the Callbacks/DNC sheet. ' + errMsg(dncResp) + ' ' + errMsg(cbResp)); }\n  return [];\n}\nconst dnc = new Set(sheetRows(dncResp).map((r) => normalizePhone(r.phone, cfg.agency.default_country_code)));\nconst out = [];\nlet dials = 0;\nconst mk = (r, phone, action, newStatus, note) => ({ json: {\n  cfg: cfg, row: r._row, action: action, newStatus: newStatus, note: note, phone: phone,\n  vapiBody: action === 'dial' ? {\n    assistantId: cfg.vapi.outbound_assistant_id, phoneNumberId: cfg.vapi.phone_number_id, name: clip('Callback ' + (r.first_name || phone), 60),\n    customer: { number: phone, name: r.first_name || undefined },\n    assistantOverrides: { variableValues: { firstName: r.first_name || 'there', leadSource: 'a callback you asked for', propertyInterest: r.note || 'your recent enquiry', contactId: String(r.contact_id || ''), attempt: String(r.attempt || 2) } }\n  } : null\n}, pairedItem: { item: 0 } });\nfor (const r of sheetRows(cbResp)) {\n  if (String(r.status).toLowerCase() !== 'pending') continue;\n  if (String(r.handler).toLowerCase() !== 'ai') continue;\n  const due = Date.parse(r.due_at);\n  if (isNaN(due) || due > now) continue;\n  const phone = normalizePhone(r.phone, cfg.agency.default_country_code);\n  if (!E164.test(phone)) { out.push(mk(r, phone, 'skip', 'failed', 'invalid phone')); continue; }\n  if (dnc.has(phone)) { out.push(mk(r, phone, 'skip', 'cancelled', 'on DNC list')); continue; }\n  if (dials >= cfg.calling.scheduler_max_per_run) break;\n  dials++;\n  out.push(mk(r, phone, 'dial', 'calling', 'dialing ' + iso(now)));\n}\nreturn out;\n"
+      },
+      "id": "b3a96520-6d33-5d4b-b906-b021359ece11",
+      "name": "Select Due",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Select Due').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Select Due').item.json.cfg.google.tabs.callbacks + '!J' + $('Select Due').item.json.row + ':K' + $('Select Due').item.json.row) + '?valueInputOption=RAW' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(({ values: [[$('Select Due').item.json.newStatus, $('Select Due').item.json.note]] })) }}"
+      },
+      "id": "244b5610-fb2c-5828-aaff-5113e789f5f1",
+      "name": "Mark Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c23532ee-c898-54ae-b6c8-0a76f2fbab05",
+              "leftValue": "={{ !!($('Select Due').item.json.action === 'dial') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ccf26262-6c6e-556d-a953-d17f12b22903",
+      "name": "Dial?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.vapi.ai/call' }}",
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 8000
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Select Due').item.json.vapiBody) }}"
+      },
+      "id": "2afd4a25-d9d6-5622-bae7-90f46e90820d",
+      "name": "Vapi Create Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        0
+      ],
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "crdVapi00000001",
+          "name": "Vapi API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst iso = (ms) => new Date(ms).toISOString();\nconst clip = (s, n) => { s = (s === undefined || s === null) ? '' : String(s); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nfunction cfList(cfg, obj) {\n  const out = [];\n  for (const [k, v] of Object.entries(obj)) {\n    if (v === undefined || v === null || v === '') continue;\n    const id = (cfg.ghl.custom_fields || {})[k];\n    if (!id) continue;\n    out.push({ id: id, field_value: v });\n  }\n  return out;\n}\nfunction stageId(cfg, key) { return (cfg.ghl.stage_ids || {})[key] || ''; }\nfunction ghlLink(cfg, id) { return 'https://app.gohighlevel.com/v2/location/' + cfg.ghl.location_id + '/contacts/detail/' + id; }\nfunction errMsg(r) {\n  if (!r) return '';\n  if (r.error) { const e = r.error; return clip(typeof e === 'string' ? e : (e.message || e.description || JSON.stringify(e)), 160); }\n  return '';\n}\nfunction safeResp(name) {\n  try { const n = $(name); if (n.isExecuted === false) return null; return n.item.json; } catch (e) { return null; }\n}\nfunction sheetRows(resp) {\n  const v = (resp && resp.values) || [];\n  if (!v.length) return [];\n  const head = v[0].map((h) => String(h).trim().toLowerCase());\n  return v.slice(1).map((row, i) => { const o = { _row: i + 2 }; head.forEach((h, j) => { o[h] = row[j] === undefined ? '' : row[j]; }); return o; });\n}\nfunction mkId() { return 'cb_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }\n\nconst prev = $('Select Due').item.json;\nconst resp = $json;\nconst ctx = Object.assign({}, prev);\nconst cfg = ctx.cfg;\n\nconst ok = !resp.error && !!resp.id;\nctx.finalStatus = ok ? 'done' : 'failed';\nctx.finalNote = ok ? ('call ' + resp.id) : ('vapi error: ' + errMsg(resp));\nctx.degraded = ok ? [] : ['Scheduled callback call FAILED for ' + ctx.phone + ' (row ' + ctx.row + '): ' + errMsg(resp)];\n\nreturn { json: ctx };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "d4ff2832-766c-5c31-991e-e0bbc6dc3b8c",
+      "name": "Prep Call Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Prep Call Result').item.json.cfg.google.spreadsheet_id + '/values/' + encodeURIComponent($('Prep Call Result').item.json.cfg.google.tabs.callbacks + '!J' + $('Prep Call Result').item.json.row + ':K' + $('Prep Call Result').item.json.row) + '?valueInputOption=RAW' }}",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(({ values: [[$('Prep Call Result').item.json.finalStatus, $('Prep Call Result').item.json.finalNote]] })) }}"
+      },
+      "id": "6e8ededb-63a8-59c9-82c8-e07505efb7fb",
+      "name": "Mark Result",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2500,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "crdGsheets0000001",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "45719b3e-6b4b-5a9a-aef1-0df8489313c7",
+              "leftValue": "={{ !!(($('Prep Call Result').item.json.degraded || []).length > 0) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "99fc78b6-d7e3-5bad-984e-fd527333cb82",
+      "name": "Degraded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ $('Prep Call Result').item.json.degraded.join(' | ') }}"
+      },
+      "id": "de183f04-4f6b-5622-8d3b-20a763ac153e",
+      "name": "Raise Alert",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3000,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Every Few Minutes": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Check Calling Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Calling Window": {
+      "main": [
+        [
+          {
+            "node": "Sheets Read Callbacks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Read Callbacks": {
+      "main": [
+        [
+          {
+            "node": "Sheets Read DNC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Read DNC": {
+      "main": [
+        [
+          {
+            "node": "Select Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Due": {
+      "main": [
+        [
+          {
+            "node": "Mark Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Status": {
+      "main": [
+        [
+          {
+            "node": "Dial?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dial?": {
+      "main": [
+        [
+          {
+            "node": "Vapi Create Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vapi Create Call": {
+      "main": [
+        [
+          {
+            "node": "Prep Call Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Call Result": {
+      "main": [
+        [
+          {
+            "node": "Mark Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Result": {
+      "main": [
+        [
+          {
+            "node": "Degraded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Degraded?": {
+      "main": [
+        [
+          {
+            "node": "Raise Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

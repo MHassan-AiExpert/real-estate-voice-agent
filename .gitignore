@@ -1,0 +1,12 @@
+# secrets and local config - never commit
+config.json
+.env
+*.env
+vapi/.state.json
+# python / node / os
+__pycache__/
+*.pyc
+node_modules/
+.venv/
+.DS_Store
+Thumbs.db

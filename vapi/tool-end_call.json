@@ -1,0 +1,7 @@
+{
+  "type": "endCall",
+  "function": {
+    "name": "end_call",
+    "description": "End the call after saying goodbye, or immediately after opt_out."
+  }
+}
