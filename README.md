@@ -17,9 +17,18 @@
 
 ---
 
+## Demo
+
+Live test call with the voice agent (about 2 minutes). Click the image to watch.
+
+[![Watch the demo](docs/demo/demo-poster.jpg)](docs/demo/demo.mp4)
+
+---
+
 ## Contents
 
-1. [At a glance](#at-a-glance)
+1. [Demo](#demo)
+2. [At a glance](#at-a-glance)
 2. [The problem it solves](#the-problem-it-solves)
 3. [Original plan vs what was delivered](#original-plan-vs-what-was-delivered)
 4. [Architecture](#architecture)
